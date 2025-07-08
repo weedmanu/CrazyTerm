@@ -56,10 +56,9 @@ CrazyTerm/
 │   ├── __init__.py
 │   ├── tool_checksum.py       # Calculateur checksum
 │   └── tool_converter.py      # Convertisseur de données
-└── config/                    # 📋 Configuration
-    ├── settings.ini           # Paramètres principaux
-    ├── advanced.json          # Paramètres avancés
-    └── performance.ini        # Configuration performance
+└── build/                     # 🏗️ Scripts de compilation
+    ├── install_crazyterm.bat  # Script d'installation/build
+    └── README.md              # Documentation build
 ```
 
 ## 🔧 Fonctionnalités
@@ -126,20 +125,16 @@ pyinstaller>=6.0,<7.0
 ```
 
 ### Configuration
-Les fichiers de configuration se trouvent dans `config/` :
-- `settings.ini` : Paramètres de l'application
-- `advanced.json` : Configuration avancée
-- `performance.ini` : Paramètres de performance
+L'application utilise les mécanismes suivants pour la configuration :
+- **QSettings** (système) : Sauvegarde automatique des paramètres dans le registre Windows
+- **advanced_settings.json** : Paramètres avancés des panneaux d'interface (généré automatiquement)
+- **Logs** : Fichier `serial_terminal.log` pour le suivi des erreurs
+- **Valeurs par défaut** : Constantes définies dans le code source
+
+> **Note** : Toute la configuration est gérée automatiquement par l'application, aucune configuration manuelle n'est requise.
 
 ## 📄 License
 
-Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
+Ce projet est libre.
 
-## 🤝 Contribution
 
-Les contributions sont les bienvenues ! N'hésitez pas à :
-1. Fork le projet
-2. Créer une branche pour votre fonctionnalité
-3. Commit vos changements
-4. Push vers la branche
-5. Ouvrir une Pull Request

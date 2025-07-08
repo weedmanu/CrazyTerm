@@ -86,11 +86,3 @@ class SettingsManager:
             logger.error(f"Erreur lors du chargement des paramètres: {str(e)}")
             return {}
     
-    def reset_to_defaults(self) -> None:
-        """Remet tous les paramètres à leur valeur par défaut."""
-        try:
-            self.settings.clear()
-            self.settings.sync()
-            logger.info("Paramètres remis à zéro")
-        except Exception as e:
-            logger.error(f"Erreur lors de la remise à zéro: {str(e)}")

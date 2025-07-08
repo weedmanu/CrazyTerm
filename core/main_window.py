@@ -52,14 +52,14 @@ class Terminal(QMainWindow):
         # Cache des formats de texte pour optimisation
         self._text_format_cache: Dict[str, Any] = {}
         
+        # Buffer de texte pour batching optimisé
+        self._pending_text_buffer: List[tuple[str, str]] = []
+        
         # Configuration de base
         self.command_history: List[str] = []
-        self.history_index: int = -1
         self.settings = QSettings("SerialTerminal", "Settings")
-        self.log_file = None
         self.rx_bytes_count: int = 0
         self.tx_bytes_count: int = 0
-        self.last_receive_time: Optional[datetime] = None
         
         # Interfaces utilisateur
         self.serial_panel = None
@@ -80,6 +80,7 @@ class Terminal(QMainWindow):
         
         # Limite stricte de mémoire
         self._max_terminal_chars = 30000  # Limite ultra-stricte
+        self._cleanup_threshold = 0.8  # Seuil de nettoyage (80% de la limite)
         
         # Outils
         self.checksum_calculator = ChecksumCalculator()
@@ -712,15 +713,6 @@ class Terminal(QMainWindow):
         
         self.terminal_output.setTextCursor(cursor)
         self.terminal_output.ensureCursorVisible()
-    
-    def select_font(self):
-        """Ouvre le dialogue de sélection de police."""
-        font, ok = QFontDialog.getFont(self.terminal_output.font(), self)
-        if ok:
-            self.terminal_output.setFont(font)
-            # Sauvegarder la police sélectionnée
-            self.settings_manager.save_setting('terminal_font', font.toString())
-            logger.info(f"Police changée: {font.family()} {font.pointSize()}pt")
     
     def show_checksum_calculator(self):
         """Affiche le calculateur de checksum."""

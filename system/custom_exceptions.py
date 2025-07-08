@@ -18,3 +18,8 @@ class SerialTimeoutError(CrazySerialTermException):
 class SerialDataError(CrazySerialTermException):
     """Erreur de format ou validation des données."""
     pass
+
+# Alias pour compatibilité
+SerialPortException = SerialConnectionError
+ConnectionTimeoutException = SerialTimeoutError  
+DataTransmissionException = SerialDataError

@@ -1,12 +1,13 @@
 """
 Gestionnaire de mémoire ultra-optimisé pour CrazySerialTerm
-Objectif: Atteindre 10/10 en robustesse avec une fuite mémoire quasi-nulle (<50 objets Qt)
+Objectif: A        logger.info("UltraMemoryManager initialisé")
+    
+    def get_cursor(self, text_edit: QTextEdit) -> QTextCursor:obustesse avec une fuite mémoire quasi-nulle (<50 objets Qt)
 """
 
 import gc
-import weakref
 import threading
-from typing import Dict, List, Optional, Set, Any
+from typing import Dict, List, Any
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 from PyQt5.QtGui import QTextCursor, QTextCharFormat
 from PyQt5.QtWidgets import QTextEdit
@@ -53,9 +54,8 @@ class UltraMemoryManager(QObject):
         self._cursor_pool = ObjectPool(max_size=5)
         self._format_pool = ObjectPool(max_size=10)
         
-        # Cache ultra-optimisé avec WeakValueDictionary
+        # Cache ultra-optimisé
         self._format_cache: Dict[str, QTextCharFormat] = {}
-        self._weak_refs: Set[weakref.ref] = set()
         
         # Buffer de texte avec limitation stricte
         self._text_buffer: List[str] = []
@@ -71,9 +71,6 @@ class UltraMemoryManager(QObject):
         self._cleanup_timer = QTimer()
         self._cleanup_timer.timeout.connect(self._aggressive_cleanup)
         self._cleanup_timer.start(5000)  # Nettoyage toutes les 5 secondes
-        
-        # Références faibles pour tracking automatique
-        self._tracked_objects: Set[weakref.ref] = set()
         
         logger.info("UltraMemoryManager initialisé")
     
@@ -128,19 +125,6 @@ class UltraMemoryManager(QObject):
             if self._object_count > 30:
                 self._immediate_cleanup()
     
-    def track_object(self, obj):
-        """Track un objet avec référence faible pour nettoyage automatique."""
-        def cleanup_callback(ref):
-            self._tracked_objects.discard(ref)
-            self._object_count -= 1
-        
-        ref = weakref.ref(obj, cleanup_callback)
-        self._tracked_objects.add(ref)
-        self._object_count += 1
-        
-        if self._object_count > self._peak_object_count:
-            self._peak_object_count = self._object_count
-    
     def _aggressive_cleanup(self):
         """Nettoyage agressif périodique."""
         self._cleanup_counter += 1
@@ -152,10 +136,6 @@ class UltraMemoryManager(QObject):
             for key in keys[:-3]:
                 fmt = self._format_cache.pop(key)
                 self._format_pool.release(fmt)
-        
-        # Nettoyage des références faibles mortes
-        dead_refs = {ref for ref in self._tracked_objects if ref() is None}
-        self._tracked_objects -= dead_refs
         
         # Garbage collection agressif
         if self._cleanup_counter % 3 == 0:  # Toutes les 15 secondes
@@ -190,8 +170,7 @@ class UltraMemoryManager(QObject):
             'current_objects': self._object_count,
             'peak_objects': self._peak_object_count,
             'cache_size': len(self._format_cache),
-            'buffer_size': len(self._text_buffer),
-            'tracked_objects': len(self._tracked_objects)
+            'buffer_size': len(self._text_buffer)
         }
     
     def emergency_cleanup(self):
@@ -202,14 +181,16 @@ class UltraMemoryManager(QObject):
             self._text_buffer.clear()
         
         # Vide tous les pools
-        self._cursor_pool._pool.clear()
-        self._format_pool._pool.clear()
+        try:
+            self._cursor_pool._pool.clear()
+            self._format_pool._pool.clear()
+        except:
+            pass
         
         # Vide le cache
         self._format_cache.clear()
         
-        # Reset tracking
-        self._tracked_objects.clear()
+        # Reset compteurs
         self._object_count = 0
         
         # GC ultra-agressif
