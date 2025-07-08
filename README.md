@@ -5,25 +5,25 @@ Terminal série avancé avec interface graphique PyQt5.
 ## 💡 Démarrage rapide (Utilisateur final)
 
 ### Installation autonome (RECOMMANDÉ)
-```cmd
+```bash
 # Téléchargez le projet depuis GitHub
 # Puis exécutez :
-build\install_crazyterm.bat
+python build/install_crazyterm.py
 ```
 
 **Aucune installation préalable requise !**
 - Le script détecte/guide l'installation de Python
 - Crée automatiquement un environnement isolé
 - Installe toutes les dépendances
-- Génère l'exécutable portable
+- Génère l'exécutable `dist/CrazyTerm.exe`
 
-### Utilisation portable
+**⚠️ Limitation Windows** : Pour des raisons de sécurité (antivirus), l'exécutable généré ne fonctionnera de façon fiable que sur le PC où il a été créé. Pour une distribution sur d'autres machines, il est recommandé de re-générer l'exécutable sur chaque poste cible.
+
+### Lancement de l'application
 Après le build, utilisez directement :
 ```cmd
 dist\CrazyTerm.exe
 ```
-
-Le dossier `dist\portable\` peut être distribué sur n'importe quel PC Windows.
 
 ## 🖥️ Pour les développeurs
 
@@ -45,14 +45,13 @@ Le projet est organisé en modules clairs :
 ## 📦 Compilation en exécutable
 
 ### Installation autonome (recommandé)
-```cmd
-build\install_crazyterm.bat
+```bash
+python build/install_crazyterm.py
 ```
 - Installation complète automatique
 - Environnement virtuel isolé
-- Génération d'exécutable portable
+- Génération d'exécutable unique
 - Aucune dépendance externe requise
-- Package prêt à distribuer
 
 ## 🧰 Outils de développement
 Voir `dev_tools/README.md` pour la liste des scripts de validation et d'automatisation.
@@ -64,4 +63,4 @@ Voir `requirements.txt` :
 - pyinstaller
 
 ## ℹ️ Support
-- GitHub : https://github.com/weedmanu/CrazyTerm
+- GitHub : https://github.com/[votre-repo]/CrazyTerm
