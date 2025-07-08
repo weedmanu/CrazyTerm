@@ -1,0 +1,16 @@
+# Logs et fichiers temporaires des outils de dev
+*.log
+*.tmp
+__temp_*
+
+# Rapports de validation
+rapport_*.txt
+validation_*.json
+
+# Fichiers de sauvegarde
+*.bak
+*.backup
+
+# Fichiers de cache Python spécifiques aux dev tools
+.pytest_cache/
+.coverage

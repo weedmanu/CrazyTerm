@@ -60,7 +60,7 @@ def main():
         terminal = Terminal()
         
         # Charger l'icône de l'application
-        icon_path = resource_path('assets/CrazySerialTerm.ico')
+        icon_path = resource_path('assets/CrazyTerm.ico')
         if os.path.exists(icon_path):
             terminal.setWindowIcon(QIcon(icon_path))
             logger.debug(f"Icône chargée depuis: {icon_path}")

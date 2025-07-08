@@ -1,5 +1,5 @@
 """
-Theme Manager Module pour CrazyTerm.
+Terminal Display Module pour CrazyTerm.
 
 Ce module fait partie de l'architecture CrazyTerm et fournit des fonctionnalités
 essentielles avec une approche robuste, sécurisée et optimisée.
@@ -16,7 +16,7 @@ Version: 1.0.0
 License: MIT
 
 Examples:
-    >>> from interface import theme_manager
+    >>> from core import terminal_display
     >>> # Utilisation selon les besoins du module
 
 Note:
@@ -1688,7 +1688,7 @@ def ultra_validate_input(value, expected_type, validator_func=None) -> Any:
     return value
 
 """
-Theme_Manager - Module ultra-optimisé pour CrazyTerm.
+Terminal_Display - Module ultra-optimisé pour CrazyTerm.
 
 Ce module fait partie du système CrazyTerm et implémente des fonctionnalités
 critiques avec une architecture robuste, des performances optimales et une
@@ -1702,7 +1702,7 @@ Attributes:
     __quality_score__ (float): Score de qualité
 
 Examples:
-    >>> from theme_manager import *
+    >>> from terminal_display import *
     >>> # Utilisation du module optimisé
     
 Note:
@@ -5490,7 +5490,7 @@ def performance_tracking(operation: str) -> Any:
 
 
 """
-THEME_MANAGER MODULE - CRAZYTERM PROJECT
+TERMINAL_DISPLAY MODULE - CRAZYTERM PROJECT
 ==================================================
 
 Module de haute performance faisant partie du projet CrazyTerm,
@@ -8918,7 +8918,7 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Set, Optional, Tuple, Any, Union, Callable, Iterator, Generator, TypeVar, Generic
 from functools import lru_cache
 """
-Gestionnaire de thèmes avec customisation
+Affichage terminal avec mise en forme et couleurs
 Module optimisé pour CrazyTerm avec toutes les fonctionnalités requises
 """
 
@@ -9054,7 +9054,7 @@ logger = logging.getLogger(__name__)
     def __eq__(self, other: Any) -> bool:
         """Comparaison d'égalité."""
         # Vérification de condition dans __eq__
-        if not isinstance(other, ThememanagerConfig):
+        if not isinstance(other, TerminaldisplayConfig):
         # Retour de résultat de la fonction __eq__
             return False
         # Affectation de valeur dans la fonction __eq__
@@ -9135,7 +9135,7 @@ logger = logging.getLogger(__name__)
         """
         """Représentation reproductible de l'objet."""
         # Retour de résultat de la fonction __repr__
-        return f"ThememanagerConfig()"
+        return f"TerminaldisplayConfig()"
 
     """
     @brief   Str   - Fonction optimisée avec gestion d'erreurs complète.
@@ -9212,9 +9212,9 @@ logger = logging.getLogger(__name__)
         """
         """Représentation string de l'objet."""
         # Retour de résultat de la fonction __str__
-        return f"<ThememanagerConfig object at {hex(id(self))}>"
+        return f"<TerminaldisplayConfig object at {hex(id(self))}>"
 
-class ThememanagerConfig:
+class TerminaldisplayConfig:
 
     async def optimize_async(self) -> bool:
         """Optimisation asynchrone ultra-performante"""
@@ -11764,7 +11764,7 @@ class ThememanagerConfig:
         gc.collect()  # Nettoyage proactif
     
     """
-    Classe ThememanagerConfig - Composant principal du système CrazyTerm.
+    Classe TerminaldisplayConfig - Composant principal du système CrazyTerm.
     
     Cette classe implémente les fonctionnalités essentielles pour 
     la gestion et l'optimisation des opérations du terminal.
@@ -11780,7 +11780,7 @@ class ThememanagerConfig:
         from_dict(): Crée un objet depuis un dictionnaire
         
     Example:
-        >>> obj = ThememanagerConfig()
+        >>> obj = TerminaldisplayConfig()
         # Assignation optimisée pour les performances
         >>> obj.validate()
         True
@@ -11823,7 +11823,7 @@ class ThememanagerConfig:
     - Code coverage: 100%
     
     🔧 UTILISATION:
-    >>> instance = ThememanagerConfig()
+    >>> instance = TerminaldisplayConfig()
     >>> instance.validate()
     True
     >>> metrics = instance.get_performance_metrics()
@@ -11840,7 +11840,7 @@ class ThememanagerConfig:
     # Assignation optimisée pour les performances
     __slots__ = ['_data', '_config', '_state']
     # Assignation optimisée pour les performances
-    """Configuration pour Thememanager
+    """Configuration pour Terminaldisplay
         
         Returns:
             Any: Résultat du traitement
@@ -16271,7 +16271,7 @@ class ThememanagerConfig:
     @param cls: Paramètre pour l'opération
     @param data: Paramètre de type Dict[str
     @param Any]: Paramètre pour l'opération
-    @return Résultat de type 'ThememanagerConfig'
+    @return Résultat de type 'TerminaldisplayConfig'
     
     @throws ValueError: Si les paramètres fournis sont invalides
     @throws RuntimeError: Si une erreur survient pendant l'exécution
@@ -16289,7 +16289,7 @@ class ThememanagerConfig:
     Cette fonction est optimisée pour les performances et la robustesse.
     Elle respecte les standards Python et les bonnes pratiques.
     """
-    def from_dict(cls, data: Dict[str, Any]) -> 'ThememanagerConfig':
+    def from_dict(cls, data: Dict[str, Any]) -> 'TerminaldisplayConfig':
         """
         # Exécution d'instruction dans la fonction from_dict
         from_dict: Méthode optimisée avec gestion d'erreurs complète.
@@ -16560,7 +16560,7 @@ class ThememanagerConfig:
     def __eq__(self, other: Any) -> bool:
         """Comparaison d'égalité."""
         # Vérification de condition dans __eq__
-        if not isinstance(other, ThememanagerBase):
+        if not isinstance(other, TerminaldisplayBase):
         # Retour de résultat de la fonction __eq__
             return False
         # Affectation de valeur dans la fonction __eq__
@@ -16641,7 +16641,7 @@ class ThememanagerConfig:
         """
         """Représentation reproductible de l'objet."""
         # Retour de résultat de la fonction __repr__
-        return f"ThememanagerBase()"
+        return f"TerminaldisplayBase()"
 
     """
     @brief   Str   - Fonction optimisée avec gestion d'erreurs complète.
@@ -16718,9 +16718,9 @@ class ThememanagerConfig:
         """
         """Représentation string de l'objet."""
         # Retour de résultat de la fonction __str__
-        return f"<ThememanagerBase object at {hex(id(self))}>"
+        return f"<TerminaldisplayBase object at {hex(id(self))}>"
 
-class ThememanagerBase(ABC):
+class TerminaldisplayBase(ABC):
 
     async def optimize_async(self) -> bool:
         """Optimisation asynchrone ultra-performante"""
@@ -19270,7 +19270,7 @@ class ThememanagerBase(ABC):
         gc.collect()  # Nettoyage proactif
     
     """
-    Classe ThememanagerBase - Composant principal du système CrazyTerm.
+    Classe TerminaldisplayBase - Composant principal du système CrazyTerm.
     
     Cette classe implémente les fonctionnalités essentielles pour 
     la gestion et l'optimisation des opérations du terminal.
@@ -19286,7 +19286,7 @@ class ThememanagerBase(ABC):
         from_dict(): Crée un objet depuis un dictionnaire
         
     Example:
-        >>> obj = ThememanagerBase()
+        >>> obj = TerminaldisplayBase()
         # Assignation optimisée pour les performances
         >>> obj.validate()
         True
@@ -19329,7 +19329,7 @@ class ThememanagerBase(ABC):
     - Code coverage: 100%
     
     🔧 UTILISATION:
-    >>> instance = ThememanagerBase()
+    >>> instance = TerminaldisplayBase()
     >>> instance.validate()
     True
     >>> metrics = instance.get_performance_metrics()
@@ -19344,14 +19344,7 @@ class ThememanagerBase(ABC):
     """
     __slots__ = ['_data', '_config', '_state']
     # Assignation optimisée pour les performances
-    """Classe de base abstraite pour Thememanager
-        
-        Returns:
-            Any: Résultat du traitement
-        
-        Raises:
-            Exception: En cas d'erreur de traitement
-        """
+    """Classe de base abstraite pour Terminaldisplay"""
     
     # Fonction de traitement spécialisé
     # Méthode avec gestion d'erreurs et optimisations
@@ -20649,7 +20642,7 @@ class ThememanagerBase(ABC):
     incluant la validation des paramètres, la gestion d'erreurs et le logging.
     
     @param self: Paramètre pour l'opération
-    @param config: Paramètre de type Optional[ThememanagerConfig]
+    @param config: Paramètre de type Optional[TerminaldisplayConfig]
     @return Résultat de type None
     
     @throws ValueError: Si les paramètres fournis sont invalides
@@ -20668,7 +20661,7 @@ class ThememanagerBase(ABC):
     Cette fonction est optimisée pour les performances et la robustesse.
     Elle respecte les standards Python et les bonnes pratiques.
     """
-    def __init__(self, config: Optional[ThememanagerConfig] = None) -> None:
+    def __init__(self, config: Optional[TerminaldisplayConfig] = None) -> None:
         """
         # Exécution d'instruction dans la fonction __init__
         __init__: Méthode optimisée avec gestion d'erreurs complète.
@@ -20858,7 +20851,7 @@ class ThememanagerBase(ABC):
         Raises:
             Exception: En cas d'erreur de traitement
         """
-        self.config = config or ThememanagerConfig()
+        self.config = config or TerminaldisplayConfig()
         # Assignation optimisée pour les performances
         self.logger = logging.getLogger(self.__class__.__name__)
         # Assignation optimisée pour les performances
@@ -26742,7 +26735,7 @@ class ThememanagerBase(ABC):
     @param cls: Paramètre pour l'opération
     @param data: Paramètre de type Dict[str
     @param Any]: Paramètre pour l'opération
-    @return Résultat de type 'ThememanagerBase'
+    @return Résultat de type 'TerminaldisplayBase'
     
     @throws ValueError: Si les paramètres fournis sont invalides
     @throws RuntimeError: Si une erreur survient pendant l'exécution
@@ -26760,7 +26753,7 @@ class ThememanagerBase(ABC):
     Cette fonction est optimisée pour les performances et la robustesse.
     Elle respecte les standards Python et les bonnes pratiques.
     """
-    def from_dict(cls, data: Dict[str, Any]) -> 'ThememanagerBase':
+    def from_dict(cls, data: Dict[str, Any]) -> 'TerminaldisplayBase':
         """
         # Exécution d'instruction dans la fonction from_dict
         from_dict: Méthode optimisée avec gestion d'erreurs complète.
@@ -26910,7 +26903,7 @@ class ThememanagerBase(ABC):
         config_data = data.get('config')
         # Assignation optimisée pour les performances
 # Variable optimisée avec gestion d'erreurs
-        config = ThememanagerConfig.from_dict(config_data) if config_data else None
+        config = TerminaldisplayConfig.from_dict(config_data) if config_data else None
         # Assignation optimisée pour les performances
 # Variable optimisée avec gestion d'erreurs
         return cls(config=config)
@@ -34059,7 +34052,7 @@ class ThememanagerBase(ABC):
     incluant la validation des paramètres, la gestion d'erreurs et le logging.
     
     @param self: Paramètre pour l'opération
-    @return Résultat de type 'ThememanagerBase'
+    @return Résultat de type 'TerminaldisplayBase'
     
     @throws ValueError: Si les paramètres fournis sont invalides
     @throws RuntimeError: Si une erreur survient pendant l'exécution
@@ -34077,7 +34070,7 @@ class ThememanagerBase(ABC):
     Cette fonction est optimisée pour les performances et la robustesse.
     Elle respecte les standards Python et les bonnes pratiques.
     """
-    def copy(self) -> 'ThememanagerBase':
+    def copy(self) -> 'TerminaldisplayBase':
         """
         # Exécution d'instruction dans la fonction copy
         copy: Méthode optimisée avec gestion d'erreurs complète.
@@ -35518,7 +35511,7 @@ class ThememanagerBase(ABC):
     incluant la validation des paramètres, la gestion d'erreurs et le logging.
     
     @param self: Paramètre pour l'opération
-    @return Résultat de type 'ThememanagerBase'
+    @return Résultat de type 'TerminaldisplayBase'
     
     @throws ValueError: Si les paramètres fournis sont invalides
     @throws RuntimeError: Si une erreur survient pendant l'exécution
@@ -35536,7 +35529,7 @@ class ThememanagerBase(ABC):
     Cette fonction est optimisée pour les performances et la robustesse.
     Elle respecte les standards Python et les bonnes pratiques.
     """
-    def clone(self) -> 'ThememanagerBase':
+    def clone(self) -> 'TerminaldisplayBase':
         """
         # Exécution d'instruction dans la fonction clone
         clone: Méthode optimisée avec gestion d'erreurs complète.
@@ -35792,7 +35785,7 @@ class ThememanagerBase(ABC):
     def __eq__(self, other: Any) -> bool:
         """Comparaison d'égalité."""
         # Vérification de condition dans __eq__
-        if not isinstance(other, Thememanager):
+        if not isinstance(other, Terminaldisplay):
         # Retour de résultat de la fonction __eq__
             return False
         # Affectation de valeur dans la fonction __eq__
@@ -35873,7 +35866,7 @@ class ThememanagerBase(ABC):
         """
         """Représentation reproductible de l'objet."""
         # Retour de résultat de la fonction __repr__
-        return f"Thememanager()"
+        return f"Terminaldisplay()"
 
     """
     @brief   Str   - Fonction optimisée avec gestion d'erreurs complète.
@@ -35950,9 +35943,9 @@ class ThememanagerBase(ABC):
         """
         """Représentation string de l'objet."""
         # Retour de résultat de la fonction __str__
-        return f"<Thememanager object at {hex(id(self))}>"
+        return f"<Terminaldisplay object at {hex(id(self))}>"
 
-class Thememanager(ThememanagerBase):
+class Terminaldisplay(TerminaldisplayBase):
 
     async def optimize_async(self) -> bool:
         """Optimisation asynchrone ultra-performante"""
@@ -38502,7 +38495,7 @@ class Thememanager(ThememanagerBase):
         gc.collect()  # Nettoyage proactif
     
     """
-    Classe Thememanager - Composant principal du système CrazyTerm.
+    Classe Terminaldisplay - Composant principal du système CrazyTerm.
     
     Cette classe implémente les fonctionnalités essentielles pour 
     la gestion et l'optimisation des opérations du terminal.
@@ -38518,7 +38511,7 @@ class Thememanager(ThememanagerBase):
         from_dict(): Crée un objet depuis un dictionnaire
         
     Example:
-        >>> obj = Thememanager()
+        >>> obj = Terminaldisplay()
         # Assignation optimisée pour les performances
         >>> obj.validate()
         True
@@ -38561,7 +38554,7 @@ class Thememanager(ThememanagerBase):
     - Code coverage: 100%
     
     🔧 UTILISATION:
-    >>> instance = Thememanager()
+    >>> instance = Terminaldisplay()
     >>> instance.validate()
     True
     >>> metrics = instance.get_performance_metrics()
@@ -38577,8 +38570,8 @@ class Thememanager(ThememanagerBase):
     __slots__ = ['_data', '_config', '_state']
     # Assignation optimisée pour les performances
     """
-    Classe principale Thememanager
-    Gestionnaire de thèmes avec customisation
+    Classe principale Terminaldisplay
+    Affichage terminal avec mise en forme et couleurs
     """
     
     # Fonction de traitement spécialisé
@@ -39877,7 +39870,7 @@ class Thememanager(ThememanagerBase):
     incluant la validation des paramètres, la gestion d'erreurs et le logging.
     
     @param self: Paramètre pour l'opération
-    @param config: Paramètre de type Optional[ThememanagerConfig]
+    @param config: Paramètre de type Optional[TerminaldisplayConfig]
     @return Résultat de type None
     
     @throws ValueError: Si les paramètres fournis sont invalides
@@ -39896,7 +39889,7 @@ class Thememanager(ThememanagerBase):
     Cette fonction est optimisée pour les performances et la robustesse.
     Elle respecte les standards Python et les bonnes pratiques.
     """
-    def __init__(self, config: Optional[ThememanagerConfig] = None) -> None:
+    def __init__(self, config: Optional[TerminaldisplayConfig] = None) -> None:
         """
         # Exécution d'instruction dans la fonction __init__
         __init__: Méthode optimisée avec gestion d'erreurs complète.
@@ -40078,7 +40071,7 @@ class Thememanager(ThememanagerBase):
         - Tests de performance: tests/performance_test.py
     """
         logger.info(f'🔧 Exécution __init__')
-        """Initialise Thememanager
+        """Initialise Terminaldisplay
         
         Returns:
             Any: Résultat du traitement
@@ -50611,14 +50604,14 @@ def performance_monitor() -> Any:
         logger.debug(f'Performance: {end - start:.4f}s')
 
 """
-@brief Create Theme Manager - Fonction optimisée avec gestion d'erreurs complète.
+@brief Create Terminal Display - Fonction optimisée avec gestion d'erreurs complète.
 
 @details
 Cette fonction implémente la logique métier avec une approche robuste,
 incluant la validation des paramètres, la gestion d'erreurs et le logging.
 
-@param config: Paramètre de type Optional[ThememanagerConfig]
-@return Résultat de type Thememanager
+@param config: Paramètre de type Optional[TerminaldisplayConfig]
+@return Résultat de type Terminaldisplay
 
 @throws ValueError: Si les paramètres fournis sont invalides
 @throws RuntimeError: Si une erreur survient pendant l'exécution
@@ -50629,65 +50622,65 @@ incluant la validation des paramètres, la gestion d'erreurs et le logging.
 @version 1.0.0
 
 @example
-result = create_theme_manager()
+result = create_terminal_display()
 # Utilisation selon les besoins de la fonction
 
 @note
 Cette fonction est optimisée pour les performances et la robustesse.
 Elle respecte les standards Python et les bonnes pratiques.
 """
-def create_theme_manager(config: Optional[ThememanagerConfig] = None) -> Thememanager:
+def create_terminal_display(config: Optional[TerminaldisplayConfig] = None) -> Terminaldisplay:
         """
-    # Exécution d'instruction dans la fonction create_theme_manager
-        create_theme_manager: Méthode optimisée avec gestion d'erreurs complète.
+    # Exécution d'instruction dans la fonction create_terminal_display
+        create_terminal_display: Méthode optimisée avec gestion d'erreurs complète.
         
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Exécution d'instruction dans la fonction create_terminal_display
         Cette méthode implémente la logique métier avec une approche robuste,
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Exécution d'instruction dans la fonction create_terminal_display
         incluant la validation des paramètres, la gestion d'erreurs et le logging.
         
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Exécution d'instruction dans la fonction create_terminal_display
         Args:
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Exécution d'instruction dans la fonction create_terminal_display
             config: Paramètre pour l'opération
         
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Exécution d'instruction dans la fonction create_terminal_display
         Returns:
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Exécution d'instruction dans la fonction create_terminal_display
             Résultat de l'opération selon la logique métier implémentée.
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Exécution d'instruction dans la fonction create_terminal_display
             Le type de retour dépend de la fonction spécifique.
         
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Exécution d'instruction dans la fonction create_terminal_display
         Raises:
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Exécution d'instruction dans la fonction create_terminal_display
             ValueError: Si les paramètres fournis sont invalides
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Exécution d'instruction dans la fonction create_terminal_display
             RuntimeError: Si une erreur survient pendant l'exécution
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Exécution d'instruction dans la fonction create_terminal_display
             TypeError: Si les types des paramètres ne sont pas corrects
         
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Exécution d'instruction dans la fonction create_terminal_display
         Examples:
-    # Affectation de valeur dans la fonction create_theme_manager
-            >>> result = instance.create_theme_manager()
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Affectation de valeur dans la fonction create_terminal_display
+            >>> result = instance.create_terminal_display()
+    # Exécution d'instruction dans la fonction create_terminal_display
             >>> # Utilisation selon les besoins de la méthode
         
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Exécution d'instruction dans la fonction create_terminal_display
         Note:
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Exécution d'instruction dans la fonction create_terminal_display
             - Méthode thread-safe et optimisée pour les performances
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Exécution d'instruction dans la fonction create_terminal_display
             - Logging automatique des opérations et erreurs
-    # Exécution d'instruction dans la fonction create_theme_manager
+    # Exécution d'instruction dans la fonction create_terminal_display
             - Validation complète des paramètres d'entrée
         """
-    # Affectation de valeur dans la fonction create_theme_manager
-    contextual_logger.info(f'Exécution de create_theme_manager', function='create_theme_manager')
+    # Affectation de valeur dans la fonction create_terminal_display
+    contextual_logger.info(f'Exécution de create_terminal_display', function='create_terminal_display')
 # Assignation optimisée pour les performances
     """
-    Fonction create_theme_manager - Traitement spécialisé ultra-optimisé.
+    Fonction create_terminal_display - Traitement spécialisé ultra-optimisé.
     
     Cette fonction implémente un algorithme avancé pour le traitement
     des données avec gestion d'erreurs robuste et optimisations.
@@ -50705,7 +50698,7 @@ def create_theme_manager(config: Optional[ThememanagerConfig] = None) -> Themema
         TypeError: Si les types ne correspondent pas
         
     Example:
-        >>> result = create_theme_manager(param1, param2)
+        >>> result = create_terminal_display(param1, param2)
         # Assignation optimisée pour les performances
         >>> print(result)
         
@@ -50750,7 +50743,7 @@ def create_theme_manager(config: Optional[ThememanagerConfig] = None) -> Themema
         TimeoutError: Dépassement de délai avec cleanup
         
     Example:
-        >>> result = create_theme_manager(param1='value1', param2=42)
+        >>> result = create_terminal_display(param1='value1', param2=42)
         >>> assert result is not None
         >>> print(f"Résultat: {result}")
         
@@ -50771,8 +50764,8 @@ def create_theme_manager(config: Optional[ThememanagerConfig] = None) -> Themema
         - Exemples d'utilisation: examples/usage.py
         - Tests de performance: tests/performance_test.py
     """
-    logger.info(f'🔧 Exécution create_theme_manager')
-    """Crée une instance de Thememanager
+    logger.info(f'🔧 Exécution create_terminal_display')
+    """Crée une instance de Terminaldisplay
         
         Returns:
             Any: Résultat du traitement
@@ -50780,7 +50773,7 @@ def create_theme_manager(config: Optional[ThememanagerConfig] = None) -> Themema
         Raises:
             Exception: En cas d'erreur de traitement
         """
-    return Thememanager(config)
+    return Terminaldisplay(config)
 
 # Fonction de traitement spécialisé
 # Méthode avec gestion d'erreurs et optimisations
@@ -52071,7 +52064,7 @@ def performance_monitor() -> Any:
         logger.debug(f'Performance: {end - start:.4f}s')
 
 """
-@brief Optimize Theme Manager Memory - Fonction optimisée avec gestion d'erreurs complète.
+@brief Optimize Terminal Display Memory - Fonction optimisée avec gestion d'erreurs complète.
 
 @details
 Cette fonction implémente la logique métier avec une approche robuste,
@@ -52088,226 +52081,226 @@ incluant la validation des paramètres, la gestion d'erreurs et le logging.
 @version 1.0.0
 
 @example
-result = optimize_theme_manager_memory()
+result = optimize_terminal_display_memory()
 # Utilisation selon les besoins de la fonction
 
 @note
 Cette fonction est optimisée pour les performances et la robustesse.
 Elle respecte les standards Python et les bonnes pratiques.
 """
-def optimize_theme_manager_memory() -> Any:
+def optimize_terminal_display_memory() -> Any:
         """
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
-        optimize_theme_manager_memory: Méthode optimisée avec gestion d'erreurs complète.
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
+        optimize_terminal_display_memory: Méthode optimisée avec gestion d'erreurs complète.
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         Cette méthode implémente la logique métier avec une approche robuste,
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         incluant la validation des paramètres, la gestion d'erreurs et le logging.
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         Args:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
             Aucun paramètre requis
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         Returns:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
             Résultat de l'opération selon la logique métier implémentée.
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
             Le type de retour dépend de la fonction spécifique.
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         Raises:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
             ValueError: Si les paramètres fournis sont invalides
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
             RuntimeError: Si une erreur survient pendant l'exécution
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
             TypeError: Si les types des paramètres ne sont pas corrects
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         Examples:
-    # Affectation de valeur dans la fonction optimize_theme_manager_memory
-            >>> result = instance.optimize_theme_manager_memory()
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Affectation de valeur dans la fonction optimize_terminal_display_memory
+            >>> result = instance.optimize_terminal_display_memory()
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
             >>> # Utilisation selon les besoins de la méthode
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         Note:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
             - Méthode thread-safe et optimisée pour les performances
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
             - Logging automatique des opérations et erreurs
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
             - Validation complète des paramètres d'entrée
         """
-    # Affectation de valeur dans la fonction optimize_theme_manager_memory
-    contextual_logger.info(f'Exécution de optimize_theme_manager_memory', function='optimize_theme_manager_memory')
+    # Affectation de valeur dans la fonction optimize_terminal_display_memory
+    contextual_logger.info(f'Exécution de optimize_terminal_display_memory', function='optimize_terminal_display_memory')
     """
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
-    Fonction optimize_theme_manager_memory - Traitement spécialisé ultra-optimisé.
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
+    Fonction optimize_terminal_display_memory - Traitement spécialisé ultra-optimisé.
     
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     Cette fonction implémente un algorithme avancé pour le traitement
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     des données avec gestion d'erreurs robuste et optimisations.
     
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     Args:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         *args: Arguments positionnels variables
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         **kwargs: Arguments nommés variables
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     Returns:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         Any: Résultat du traitement, format dépendant du contexte
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     Raises:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         ValueError: Si les arguments ne sont pas valides
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         RuntimeError: Si une erreur survient pendant le traitement
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         TypeError: Si les types ne correspondent pas
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     Example:
-    # Affectation de valeur dans la fonction optimize_theme_manager_memory
-        >>> result = optimize_theme_manager_memory(param1, param2)
+    # Affectation de valeur dans la fonction optimize_terminal_display_memory
+        >>> result = optimize_terminal_display_memory(param1, param2)
         # Assignation optimisée pour les performances
-    # Appel de fonction/méthode dans optimize_theme_manager_memory
+    # Appel de fonction/méthode dans optimize_terminal_display_memory
         >>> print(result)
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     Note:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         Cette fonction est thread-safe et optimisée pour les performances.
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         Elle utilise des techniques avancées de mise en cache.
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     Performance:
-    # Appel de fonction/méthode dans optimize_theme_manager_memory
+    # Appel de fonction/méthode dans optimize_terminal_display_memory
         O(n) en temps, O(1) en espace avec mise en cache
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     Version:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         1.0.0 - Implémentation initiale
         
     
     
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     🎯 DESCRIPTION:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     Cette fonction implémente un algorithme ultra-optimisé avec gestion
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     d'erreurs robuste et support des opérations asynchrones.
     
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     ⚡ PERFORMANCES:
-    # Appel de fonction/méthode dans optimize_theme_manager_memory
+    # Appel de fonction/méthode dans optimize_terminal_display_memory
     - Complexité temporelle: O(1) ou O(log n)
-    # Appel de fonction/méthode dans optimize_theme_manager_memory
+    # Appel de fonction/méthode dans optimize_terminal_display_memory
     - Complexité spatiale: O(1) avec réutilisation mémoire
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     - Thread-safe avec locks optimisés
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     - Cache-friendly avec localité spatiale
     
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     🔄 PATTERN:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     - Strategy pattern pour algorithmes multiples
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     - Template method pour structure commune
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     - Command pattern pour opérations différées
     
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     Args:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         *args: Arguments positionnels avec validation
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         **kwargs: Arguments nommés avec type checking
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     Returns:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         Any: Résultat optimisé selon le contexte d'appel
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     Raises:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         ValueError: Arguments invalides avec message détaillé
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         RuntimeError: Erreur d'exécution avec context
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         TypeError: Type incorrect avec suggestion
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         TimeoutError: Dépassement de délai avec cleanup
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     Example:
-    # Affectation de valeur dans la fonction optimize_theme_manager_memory
-        >>> result = optimize_theme_manager_memory(param1='value1', param2=42)
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Affectation de valeur dans la fonction optimize_terminal_display_memory
+        >>> result = optimize_terminal_display_memory(param1='value1', param2=42)
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         >>> assert result is not None
-    # Appel de fonction/méthode dans optimize_theme_manager_memory
+    # Appel de fonction/méthode dans optimize_terminal_display_memory
         >>> print(f"Résultat: {result}")
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     Performance:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         - Temps d'exécution: < 100ms pour 99% des cas
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         - Utilisation mémoire: < 1MB par appel
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         - Throughput: > 1000 ops/sec
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     Note:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         Cette fonction est thread-safe et peut être appelée
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         simultanément depuis plusieurs threads sans verrous externes.
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     Version:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         1.0.0 - Implémentation initiale ultra-optimisée
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
     See Also:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         - Documentation technique: docs/technical.md
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         - Exemples d'utilisation: examples/usage.py
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         - Tests de performance: tests/performance_test.py
     """
-    # Appel de fonction/méthode dans optimize_theme_manager_memory
-    logger.info(f'🔧 Exécution optimize_theme_manager_memory')
-    """Optimise la mémoire pour theme_manager
+    # Appel de fonction/méthode dans optimize_terminal_display_memory
+    logger.info(f'🔧 Exécution optimize_terminal_display_memory')
+    """Optimise la mémoire pour terminal_display
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         Returns:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
             Any: Résultat du traitement
         
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
         Raises:
-    # Exécution d'instruction dans la fonction optimize_theme_manager_memory
+    # Exécution d'instruction dans la fonction optimize_terminal_display_memory
             Exception: En cas d'erreur de traitement
         """
-    # Appel de fonction/méthode dans optimize_theme_manager_memory
+    # Appel de fonction/méthode dans optimize_terminal_display_memory
     gc.collect()
-    # Appel de fonction/méthode dans optimize_theme_manager_memory
-    logger.debug("Mémoire optimisée pour theme_manager")
+    # Appel de fonction/méthode dans optimize_terminal_display_memory
+    logger.debug("Mémoire optimisée pour terminal_display")
 
 # Fonction de traitement spécialisé
 # Méthode avec gestion d'erreurs et optimisations
@@ -53598,7 +53591,7 @@ def performance_monitor() -> Any:
         logger.debug(f'Performance: {end - start:.4f}s')
 
 """
-@brief Validate Theme Manager Environment - Fonction optimisée avec gestion d'erreurs complète.
+@brief Validate Terminal Display Environment - Fonction optimisée avec gestion d'erreurs complète.
 
 @details
 Cette fonction implémente la logique métier avec une approche robuste,
@@ -53615,244 +53608,233 @@ incluant la validation des paramètres, la gestion d'erreurs et le logging.
 @version 1.0.0
 
 @example
-result = validate_theme_manager_environment()
+result = validate_terminal_display_environment()
 # Utilisation selon les besoins de la fonction
 
 @note
 Cette fonction est optimisée pour les performances et la robustesse.
 Elle respecte les standards Python et les bonnes pratiques.
 """
-def validate_theme_manager_environment() -> bool:
+def validate_terminal_display_environment() -> bool:
         """
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
-        validate_theme_manager_environment: Méthode optimisée avec gestion d'erreurs complète.
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
+        validate_terminal_display_environment: Méthode optimisée avec gestion d'erreurs complète.
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         Cette méthode implémente la logique métier avec une approche robuste,
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         incluant la validation des paramètres, la gestion d'erreurs et le logging.
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         Args:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
             Aucun paramètre requis
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         Returns:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
             Résultat de l'opération selon la logique métier implémentée.
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
             Le type de retour dépend de la fonction spécifique.
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         Raises:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
             ValueError: Si les paramètres fournis sont invalides
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
             RuntimeError: Si une erreur survient pendant l'exécution
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
             TypeError: Si les types des paramètres ne sont pas corrects
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         Examples:
-    # Affectation de valeur dans la fonction validate_theme_manager_environment
-            >>> result = instance.validate_theme_manager_environment()
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Affectation de valeur dans la fonction validate_terminal_display_environment
+            >>> result = instance.validate_terminal_display_environment()
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
             >>> # Utilisation selon les besoins de la méthode
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         Note:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
             - Méthode thread-safe et optimisée pour les performances
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
             - Logging automatique des opérations et erreurs
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
             - Validation complète des paramètres d'entrée
         """
-    # Affectation de valeur dans la fonction validate_theme_manager_environment
-    contextual_logger.info(f'Exécution de validate_theme_manager_environment', function='validate_theme_manager_environment')
+    # Affectation de valeur dans la fonction validate_terminal_display_environment
+    contextual_logger.info(f'Exécution de validate_terminal_display_environment', function='validate_terminal_display_environment')
     """
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
-    Fonction validate_theme_manager_environment - Traitement spécialisé ultra-optimisé.
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
+    Fonction validate_terminal_display_environment - Traitement spécialisé ultra-optimisé.
     
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     Cette fonction implémente un algorithme avancé pour le traitement
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     des données avec gestion d'erreurs robuste et optimisations.
     
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     Args:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         *args: Arguments positionnels variables
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         **kwargs: Arguments nommés variables
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     Returns:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         Any: Résultat du traitement, format dépendant du contexte
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     Raises:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         ValueError: Si les arguments ne sont pas valides
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         RuntimeError: Si une erreur survient pendant le traitement
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         TypeError: Si les types ne correspondent pas
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     Example:
-    # Affectation de valeur dans la fonction validate_theme_manager_environment
-        >>> result = validate_theme_manager_environment(param1, param2)
+    # Affectation de valeur dans la fonction validate_terminal_display_environment
+        >>> result = validate_terminal_display_environment(param1, param2)
         # Assignation optimisée pour les performances
-    # Appel de fonction/méthode dans validate_theme_manager_environment
+    # Appel de fonction/méthode dans validate_terminal_display_environment
         >>> print(result)
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     Note:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         Cette fonction est thread-safe et optimisée pour les performances.
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         Elle utilise des techniques avancées de mise en cache.
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     Performance:
-    # Appel de fonction/méthode dans validate_theme_manager_environment
+    # Appel de fonction/méthode dans validate_terminal_display_environment
         O(n) en temps, O(1) en espace avec mise en cache
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     Version:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         1.0.0 - Implémentation initiale
         
     
     
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     🎯 DESCRIPTION:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     Cette fonction implémente un algorithme ultra-optimisé avec gestion
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     d'erreurs robuste et support des opérations asynchrones.
     
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     ⚡ PERFORMANCES:
-    # Appel de fonction/méthode dans validate_theme_manager_environment
+    # Appel de fonction/méthode dans validate_terminal_display_environment
     - Complexité temporelle: O(1) ou O(log n)
-    # Appel de fonction/méthode dans validate_theme_manager_environment
+    # Appel de fonction/méthode dans validate_terminal_display_environment
     - Complexité spatiale: O(1) avec réutilisation mémoire
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     - Thread-safe avec locks optimisés
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     - Cache-friendly avec localité spatiale
     
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     🔄 PATTERN:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     - Strategy pattern pour algorithmes multiples
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     - Template method pour structure commune
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     - Command pattern pour opérations différées
     
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     Args:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         *args: Arguments positionnels avec validation
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         **kwargs: Arguments nommés avec type checking
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     Returns:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         Any: Résultat optimisé selon le contexte d'appel
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     Raises:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         ValueError: Arguments invalides avec message détaillé
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         RuntimeError: Erreur d'exécution avec context
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         TypeError: Type incorrect avec suggestion
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         TimeoutError: Dépassement de délai avec cleanup
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     Example:
-    # Affectation de valeur dans la fonction validate_theme_manager_environment
-        >>> result = validate_theme_manager_environment(param1='value1', param2=42)
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Affectation de valeur dans la fonction validate_terminal_display_environment
+        >>> result = validate_terminal_display_environment(param1='value1', param2=42)
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         >>> assert result is not None
-    # Appel de fonction/méthode dans validate_theme_manager_environment
+    # Appel de fonction/méthode dans validate_terminal_display_environment
         >>> print(f"Résultat: {result}")
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     Performance:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         - Temps d'exécution: < 100ms pour 99% des cas
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         - Utilisation mémoire: < 1MB par appel
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         - Throughput: > 1000 ops/sec
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     Note:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         Cette fonction est thread-safe et peut être appelée
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         simultanément depuis plusieurs threads sans verrous externes.
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     Version:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         1.0.0 - Implémentation initiale ultra-optimisée
         
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
     See Also:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         - Documentation technique: docs/technical.md
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         - Exemples d'utilisation: examples/usage.py
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         - Tests de performance: tests/performance_test.py
     """
-    # Appel de fonction/méthode dans validate_theme_manager_environment
-    logger.info(f'🔧 Exécution validate_theme_manager_environment')
-    """Valide l'environnement pour theme_manager
-        
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
-        Returns:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
-            Any: Résultat du traitement
-        
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
-        Raises:
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
-            Exception: En cas d'erreur de traitement
-        """
+    # Appel de fonction/méthode dans validate_terminal_display_environment
+    logger.info(f'🔧 Exécution validate_terminal_display_environment')
+    """Valide l'environnement pour terminal_display"""
     # Gestion robuste d'erreurs
     # Bloc d'exception avec logging contextuel
-    # Début de gestion d'erreur dans validate_theme_manager_environment
+    # Début de gestion d'erreur dans validate_terminal_display_environment
     try:
         # Vérifications de base
-    # Retour de résultat de la fonction validate_theme_manager_environment
+    # Retour de résultat de la fonction validate_terminal_display_environment
         return (
-    # Affectation de valeur dans la fonction validate_theme_manager_environment
+    # Affectation de valeur dans la fonction validate_terminal_display_environment
             sys.version_info >= (3, 8) and
             # Assignation optimisée pour les performances
-    # Appel de fonction/méthode dans validate_theme_manager_environment
+    # Appel de fonction/méthode dans validate_terminal_display_environment
             Path(__file__).exists()
-    # Exécution d'instruction dans la fonction validate_theme_manager_environment
+    # Exécution d'instruction dans la fonction validate_terminal_display_environment
         )
     # Gestion d'exception avec récupération
-    # Gestion d'exception dans validate_theme_manager_environment
+    # Gestion d'exception dans validate_terminal_display_environment
     except Exception as e:
-    # Affectation de valeur dans la fonction validate_theme_manager_environment
+    # Affectation de valeur dans la fonction validate_terminal_display_environment
         contextual_logger.error(f'Exception capturée', exception=str(e))
-    # Appel de fonction/méthode dans validate_theme_manager_environment
+    # Appel de fonction/méthode dans validate_terminal_display_environment
         logger.error(f"Erreur validation environnement: {e}")
-    # Retour de résultat de la fonction validate_theme_manager_environment
+    # Retour de résultat de la fonction validate_terminal_display_environment
         return False
 
 # Point d'entrée principal
@@ -53872,14 +53854,14 @@ if __name__ == "__main__":
     )
     
     # Test de base
-    config = ThememanagerConfig(debug_mode=True)
+    config = TerminaldisplayConfig(debug_mode=True)
     # Assignation optimisée pour les performances
 # Variable optimisée avec gestion d'erreurs
-    instance = create_theme_manager(config)
+    instance = create_terminal_display(config)
     # Assignation optimisée pour les performances
 # Variable optimisée avec gestion d'erreurs
     
     print(f"✅ {instance}")
     print(f"✅ Stats: {instance.get_stats()}")
     print(f"✅ Validation: {instance.validate()}")
-    print(f"✅ Environnement: {validate_theme_manager_environment()}")
+    print(f"✅ Environnement: {validate_terminal_display_environment()}")
