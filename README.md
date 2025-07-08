@@ -52,13 +52,10 @@ CrazyTerm/
 │   ├── error_handling.py      # 🛡️ Gestion d'erreurs
 │   ├── memory_optimizer.py    # 🚀 Optimisation mémoire
 │   └── utilities.py           # 🔨 Utilitaires divers
-├── tools/                     # 🧰 Outils intégrés
-│   ├── __init__.py
-│   ├── tool_checksum.py       # 🔐 Calculateur checksum
-│   └── tool_converter.py      # 🔄 Convertisseur de données
-└── build/                     # 🏗️ Scripts de compilation
-    ├── install_crazyterm.bat  # 📦 Script d'installation/build
-    └── README.md              # 📖 Documentation build
+└── tools/                     # 🧰 Outils intégrés
+    ├── __init__.py
+    ├── tool_checksum.py       # 🔐 Calculateur checksum
+    └── tool_converter.py      # 🔄 Convertisseur de données
 ```
 
 ## ✨ Fonctionnalités
