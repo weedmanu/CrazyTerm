@@ -7,9 +7,12 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.Python
-build/
-develop-eggs/
+# build/ est suivi pour les scripts, mais pas les fichiers générés
+!build/
+!build/install_crazyterm.bat
+!build/README.md
+build/temp/
+build/*.spec
 dist/
 downloads/
 eggs/
