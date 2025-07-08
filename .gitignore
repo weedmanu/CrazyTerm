@@ -11,6 +11,7 @@ __pycache__/
 !build/
 !build/install_crazyterm.bat
 !build/README.md
+!build/.gitkeep
 build/temp/
 build/*.spec
 dist/
@@ -166,8 +167,3 @@ build/
 dist/
 *.exe
 *.msi
-
-# Temporary documentation
-docs/cleanup_log.txt
-docs/health_report.txt
-docs/score_robustesse.md
