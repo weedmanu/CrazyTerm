@@ -7,7 +7,7 @@ Terminal série avancé avec interface graphique PyQt5.
 ### Installation et utilisation
 ```cmd
 # Cloner le projet
-git clone https://github.com/votre-username/CrazyTerm.git
+git clone https://github.com/weedmanu/CrazyTerm.git
 cd CrazyTerm
 
 # Installer les dépendances
