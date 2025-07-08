@@ -64,4 +64,4 @@ Voir `requirements.txt` :
 - pyinstaller
 
 ## ℹ️ Support
-- GitHub : https://github.com/[votre-repo]/CrazyTerm
+- GitHub : https://github.com/weedmanu/CrazyTerm
