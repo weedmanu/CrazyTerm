@@ -1,0 +1,730 @@
+"""
+Panneaux d'interface utilisateur pour CrazySerialTerm - Version série classique
+Ce module contient les classes pour les panneaux de l'interface série uniquement.
+"""
+
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QGroupBox, 
+                            QLabel, QComboBox, QPushButton, QCheckBox, QLineEdit, QSpinBox,
+                            QColorDialog, QFontDialog)
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtGui import QFont, QColor
+import logging
+
+logger = logging.getLogger("CrazySerialTerm")
+
+class CustomizationPanel(QWidget):
+    """Panneau de personnalisation des thèmes et couleurs."""
+    
+    # Signaux pour notifier les changements
+    theme_changed = pyqtSignal(str)
+    font_changed = pyqtSignal(QFont)
+    colors_changed = pyqtSignal(dict)
+    
+    def __init__(self):
+        super().__init__()
+        self.setupUI()
+        self.connectSignals()
+    
+    def setupUI(self):
+        layout = QVBoxLayout()
+        
+        # Groupe des thèmes
+        theme_group = QGroupBox("Thèmes")
+        theme_layout = QVBoxLayout()
+        
+        theme_select_layout = QHBoxLayout()
+        theme_select_layout.addWidget(QLabel("Thème :"))
+        self.theme_combo = QComboBox()
+        self.theme_combo.addItems(['clair', 'sombre', 'hacker'])
+        self.theme_combo.setCurrentText('sombre')
+        theme_select_layout.addWidget(self.theme_combo)
+        theme_layout.addLayout(theme_select_layout)
+        
+        theme_group.setLayout(theme_layout)
+        layout.addWidget(theme_group)
+        
+        # Groupe de la police
+        font_group = QGroupBox("Police du terminal")
+        font_layout = QVBoxLayout()
+        
+        font_select_layout = QHBoxLayout()
+        font_select_layout.addWidget(QLabel("Police :"))
+        self.font_combo = QComboBox()
+        self.font_combo.addItems(['Consolas', 'Courier New', 'Lucida Console', 'Monospace', 'Arial'])
+        self.font_combo.setCurrentText('Consolas')
+        font_select_layout.addWidget(self.font_combo)
+        font_layout.addLayout(font_select_layout)
+        
+        size_layout = QHBoxLayout()
+        size_layout.addWidget(QLabel("Taille :"))
+        self.font_size = QSpinBox()
+        self.font_size.setRange(8, 24)
+        self.font_size.setValue(12)
+        size_layout.addWidget(self.font_size)
+        size_layout.addStretch()
+        
+        self.font_button = QPushButton("Choisir la police...")
+        size_layout.addWidget(self.font_button)
+        font_layout.addLayout(size_layout)
+        
+        font_group.setLayout(font_layout)
+        layout.addWidget(font_group)
+        
+        # Groupe des couleurs personnalisées
+        color_group = QGroupBox("Couleurs du terminal")
+        color_layout = QGridLayout()
+        
+        # Couleur du texte
+        color_layout.addWidget(QLabel("Texte :"), 0, 0)
+        self.text_color_btn = QPushButton()
+        self.text_color_btn.setFixedSize(50, 30)
+        self.text_color = QColor(255, 255, 255)  # Blanc par défaut
+        self.text_color_btn.setStyleSheet(f"background-color: {self.text_color.name()}")
+        color_layout.addWidget(self.text_color_btn, 0, 1)
+        
+        # Couleur du fond
+        color_layout.addWidget(QLabel("Fond :"), 0, 2)
+        self.bg_color_btn = QPushButton()
+        self.bg_color_btn.setFixedSize(50, 30)
+        self.bg_color = QColor(42, 42, 42)  # Gris foncé par défaut
+        self.bg_color_btn.setStyleSheet(f"background-color: {self.bg_color.name()}")
+        color_layout.addWidget(self.bg_color_btn, 0, 3)
+        
+        # Couleur des données reçues
+        color_layout.addWidget(QLabel("Données reçues :"), 1, 0)
+        self.received_color_btn = QPushButton()
+        self.received_color_btn.setFixedSize(50, 30)
+        self.received_color = QColor(0, 150, 255)  # Bleu par défaut
+        self.received_color_btn.setStyleSheet(f"background-color: {self.received_color.name()}")
+        color_layout.addWidget(self.received_color_btn, 1, 1)
+        
+        # Couleur des données envoyées
+        color_layout.addWidget(QLabel("Données envoyées :"), 1, 2)
+        self.sent_color_btn = QPushButton()
+        self.sent_color_btn.setFixedSize(50, 30)
+        self.sent_color = QColor(0, 255, 0)  # Vert par défaut
+        self.sent_color_btn.setStyleSheet(f"background-color: {self.sent_color.name()}")
+        color_layout.addWidget(self.sent_color_btn, 1, 3)
+        
+        color_group.setLayout(color_layout)
+        layout.addWidget(color_group)
+        
+        # Boutons d'action
+        btn_layout = QHBoxLayout()
+        self.apply_btn = QPushButton("Appliquer")
+        self.apply_btn.setMinimumWidth(100)
+        btn_layout.addWidget(self.apply_btn)
+        
+        self.reset_btn = QPushButton("Réinitialiser")
+        self.reset_btn.setMinimumWidth(100)
+        btn_layout.addWidget(self.reset_btn)
+        
+        btn_layout.addStretch()
+        layout.addLayout(btn_layout)
+        layout.addStretch()
+        
+        self.setLayout(layout)
+    
+    def connectSignals(self):
+        """Connecte les signaux des widgets."""
+        self.theme_combo.currentTextChanged.connect(self.on_theme_changed)
+        self.font_combo.currentTextChanged.connect(self.on_font_changed)
+        self.font_size.valueChanged.connect(self.on_font_changed)
+        self.font_button.clicked.connect(self.choose_font)
+        
+        # Boutons de couleur
+        self.text_color_btn.clicked.connect(lambda: self.choose_color('text'))
+        self.bg_color_btn.clicked.connect(lambda: self.choose_color('bg'))
+        self.received_color_btn.clicked.connect(lambda: self.choose_color('received'))
+        self.sent_color_btn.clicked.connect(lambda: self.choose_color('sent'))
+        
+        # Boutons d'action
+        self.apply_btn.clicked.connect(self.apply_settings)
+        self.reset_btn.clicked.connect(self.reset_settings)
+    
+    def on_theme_changed(self):
+        """Appelé quand le thème change."""
+        theme = self.theme_combo.currentText()
+        self.theme_changed.emit(theme)
+    
+    def on_font_changed(self):
+        """Appelé quand la police change."""
+        font_name = self.font_combo.currentText()
+        font_size = self.font_size.value()
+        font = QFont(font_name, font_size)
+        self.font_changed.emit(font)
+    
+    def choose_font(self):
+        """Ouvre le dialogue de sélection de police."""
+        current_font = QFont(self.font_combo.currentText(), self.font_size.value())
+        font, ok = QFontDialog.getFont(current_font, self)
+        if ok:
+            self.font_combo.setCurrentText(font.family())
+            self.font_size.setValue(font.pointSize())
+            self.font_changed.emit(font)
+    
+    def choose_color(self, color_type):
+        """Ouvre le dialogue de sélection de couleur."""
+        current_color = None
+        if color_type == 'text':
+            current_color = self.text_color
+        elif color_type == 'bg':
+            current_color = self.bg_color
+        elif color_type == 'received':
+            current_color = self.received_color
+        elif color_type == 'sent':
+            current_color = self.sent_color
+        
+        color = QColorDialog.getColor(current_color, self)
+        if color.isValid():
+            if color_type == 'text':
+                self.text_color = color
+                self.text_color_btn.setStyleSheet(f"background-color: {color.name()}")
+            elif color_type == 'bg':
+                self.bg_color = color
+                self.bg_color_btn.setStyleSheet(f"background-color: {color.name()}")
+            elif color_type == 'received':
+                self.received_color = color
+                self.received_color_btn.setStyleSheet(f"background-color: {color.name()}")
+            elif color_type == 'sent':
+                self.sent_color = color
+                self.sent_color_btn.setStyleSheet(f"background-color: {color.name()}")
+            
+            self.emit_colors_changed()
+    
+    def emit_colors_changed(self):
+        """Émet le signal de changement de couleurs."""
+        colors = {
+            'text': self.text_color,
+            'background': self.bg_color,
+            'received': self.received_color,
+            'sent': self.sent_color
+        }
+        self.colors_changed.emit(colors)
+    
+    def apply_settings(self):
+        """Applique tous les paramètres."""
+        self.on_theme_changed()
+        self.on_font_changed()
+        self.emit_colors_changed()
+        logger.info("Paramètres de personnalisation appliqués")
+    
+    def reset_settings(self):
+        """Remet les paramètres par défaut."""
+        self.theme_combo.setCurrentText('sombre')
+        self.font_combo.setCurrentText('Consolas')
+        self.font_size.setValue(12)
+        
+        # Couleurs par défaut
+        self.text_color = QColor(255, 255, 255)
+        self.bg_color = QColor(42, 42, 42)
+        self.received_color = QColor(0, 150, 255)
+        self.sent_color = QColor(0, 255, 0)
+        
+        # Mettre à jour l'affichage des boutons
+        self.text_color_btn.setStyleSheet(f"background-color: {self.text_color.name()}")
+        self.bg_color_btn.setStyleSheet(f"background-color: {self.bg_color.name()}")
+        self.received_color_btn.setStyleSheet(f"background-color: {self.received_color.name()}")
+        self.sent_color_btn.setStyleSheet(f"background-color: {self.sent_color.name()}")
+        
+        self.apply_settings()
+        logger.info("Paramètres de personnalisation remis par défaut")
+
+class ConnectionPanel(QGroupBox):
+    """Panneau de configuration de connexion série classique."""
+    
+    connect_requested = pyqtSignal()
+    disconnect_requested = pyqtSignal()
+    refresh_requested = pyqtSignal()
+    clear_requested = pyqtSignal()
+    
+    def __init__(self):
+        super().__init__("Paramètres de connexion")
+        self.setupUI()
+        self.connectSignals()
+    
+    def setupUI(self):
+        layout = QHBoxLayout()
+        
+        # Port série
+        port_layout = QHBoxLayout()
+        port_layout.addWidget(QLabel('Port:'))
+        self.port_select = QComboBox()
+        self.port_select.setMinimumWidth(100)
+        port_layout.addWidget(self.port_select)
+        layout.addLayout(port_layout)
+        
+        # Bouton de rafraîchissement
+        self.refresh_btn = QPushButton('Rafraîchir')
+        self.refresh_btn.setMinimumWidth(80)
+        layout.addWidget(self.refresh_btn)
+        
+        # Vitesse
+        baud_layout = QHBoxLayout()
+        baud_layout.addWidget(QLabel('Vitesse:'))
+        self.baud_select = QComboBox()
+        self.baud_select.addItems(['9600', '19200', '38400', '57600', '115200', '230400', '460800', '921600'])
+        self.baud_select.setCurrentText('115200')
+        self.baud_select.setMinimumWidth(80)
+        baud_layout.addWidget(self.baud_select)
+        layout.addLayout(baud_layout)
+        
+        # Bouton de connexion
+        self.connect_btn = QPushButton('Connecter')
+        self.connect_btn.setMinimumWidth(100)
+        layout.addWidget(self.connect_btn)
+        
+        # Bouton pour effacer
+        self.clear_btn = QPushButton('Effacer')
+        self.clear_btn.setMinimumWidth(80)
+        layout.addWidget(self.clear_btn)
+        
+        self.setLayout(layout)
+    
+    def connectSignals(self):
+        self.connect_btn.clicked.connect(self.on_connect_clicked)
+        self.refresh_btn.clicked.connect(self.refresh_requested.emit)
+        self.clear_btn.clicked.connect(self.clear_requested.emit)
+    
+    def on_connect_clicked(self):
+        if self.connect_btn.text() == 'Connecter':
+            self.connect_requested.emit()
+        else:
+            self.disconnect_requested.emit()
+    
+    def set_connected(self, connected: bool):
+        """Met à jour l'état de connexion dans l'interface."""
+        if connected:
+            self.connect_btn.setText('Déconnecter')
+        else:
+            self.connect_btn.setText('Connecter')
+    
+    def update_ports(self, ports: list):
+        """Met à jour la liste des ports disponibles."""
+        current_port = self.port_select.currentText()
+        self.port_select.clear()
+        if ports:
+            self.port_select.addItems(ports)
+            if current_port in ports:
+                self.port_select.setCurrentText(current_port)
+    
+    def get_connection_params(self) -> dict:
+        """Retourne les paramètres de connexion sélectionnés."""
+        return {
+            'port': self.port_select.currentText(),
+            'baudrate': int(self.baud_select.currentText())
+        }
+
+class InputPanel(QGroupBox):
+    """Panneau d'envoi de données."""
+    
+    send_requested = pyqtSignal(str)
+    
+    def __init__(self):
+        super().__init__("Envoi de données")
+        self.setupUI()
+        self.connectSignals()
+    
+    def setupUI(self):
+        layout = QVBoxLayout()
+        
+        # Zone de saisie et bouton
+        send_layout = QHBoxLayout()
+        send_layout.addWidget(QLabel("Commande :"))
+        self.input_field = QLineEdit()
+        send_layout.addWidget(self.input_field, 4)
+        
+        self.send_btn = QPushButton('Envoyer')
+        self.send_btn.setMinimumWidth(80)
+        send_layout.addWidget(self.send_btn)
+        
+        layout.addLayout(send_layout)
+        self.setLayout(layout)
+    
+    def connectSignals(self):
+        self.send_btn.clicked.connect(self.on_send_clicked)
+        self.input_field.returnPressed.connect(self.on_send_clicked)
+    
+    def on_send_clicked(self):
+        text = self.input_field.text()
+        if text:
+            self.send_requested.emit(text)
+    
+    def clear_input(self):
+        """Efface le champ d'entrée."""
+        self.input_field.clear()
+    
+    def set_text(self, text: str):
+        """Définit le texte dans le champ d'entrée."""
+        self.input_field.setText(text)
+    
+    def get_text(self) -> str:
+        """Retourne le texte du champ d'entrée."""
+        return self.input_field.text()
+
+class AdvancedSettingsPanel(QWidget):
+    """Panneau des paramètres avancés."""
+    
+    # Signaux pour notifier les changements
+    settings_changed = pyqtSignal()
+    send_settings_changed = pyqtSignal(dict)
+    display_settings_changed = pyqtSignal(dict)
+    serial_settings_changed = pyqtSignal(dict)
+    
+    def __init__(self):
+        super().__init__()
+        self.setupUI()
+        self.connectSignals()
+        self.init_group_states()
+    
+    def init_group_states(self):
+        """Initialise l'état des groupes selon leur état coché/décoché."""
+        self.on_send_group_toggled(self.send_group.isChecked())
+        self.on_display_group_toggled(self.display_group.isChecked())
+        self.on_serial_group_toggled(self.serial_group.isChecked())
+    
+    def setupUI(self):
+        layout = QVBoxLayout()
+        
+        # Groupe pour les options d'envoi
+        self.send_group = QGroupBox("Options d'envoi")
+        self.send_group.setCheckable(True)
+        self.send_group.setChecked(False)  # Décoché par défaut
+        send_layout = QGridLayout()
+        
+        # Format d'envoi
+        self.format_label = QLabel('Format :')
+        send_layout.addWidget(self.format_label, 0, 0)
+        self.format_select = QComboBox()
+        self.format_select.addItems(['ASCII', 'HEX'])
+        send_layout.addWidget(self.format_select, 0, 1)
+        
+        # Fin de ligne
+        self.eol_label = QLabel('Fin de ligne :')
+        send_layout.addWidget(self.eol_label, 0, 2)
+        self.eol_select = QComboBox()
+        self.eol_select.addItems(['Aucun', 'NL', 'CR', 'NL+CR'])
+        send_layout.addWidget(self.eol_select, 0, 3)
+        
+        # Répétition
+        self.repeat_check = QCheckBox('Répéter')
+        send_layout.addWidget(self.repeat_check, 1, 0)
+        
+        # Intervalle
+        self.interval_label = QLabel('Intervalle (ms) :')
+        send_layout.addWidget(self.interval_label, 1, 2)
+        self.repeat_interval = QLineEdit('1000')
+        self.repeat_interval.setFixedWidth(60)
+        send_layout.addWidget(self.repeat_interval, 1, 3)
+        
+        self.send_group.setLayout(send_layout)
+        
+        # Stocker les widgets du groupe d'envoi pour la gestion de visibilité
+        self.send_widgets = [
+            self.format_label, self.format_select,
+            self.eol_label, self.eol_select,
+            self.repeat_check,
+            self.interval_label, self.repeat_interval
+        ]
+        
+        # Masquer le contenu initialement (groupe décoché par défaut)
+        self.send_group.setFlat(False)
+        layout.addWidget(self.send_group)
+        
+        # Groupe pour les options d'affichage
+        self.display_group = QGroupBox("Options d'affichage")
+        self.display_group.setCheckable(True)
+        self.display_group.setChecked(False)  # Décoché par défaut
+        display_layout = QGridLayout()
+        
+        # Format d'affichage
+        self.display_format_label = QLabel('Format d\'affichage:')
+        display_layout.addWidget(self.display_format_label, 0, 0)
+        self.display_format = QComboBox()
+        self.display_format.addItems(['ASCII', 'HEX', 'Les deux'])
+        display_layout.addWidget(self.display_format, 0, 1)
+        
+        # Options d'affichage
+        self.auto_scroll_check = QCheckBox('Défilement automatique')
+        self.auto_scroll_check.setChecked(True)
+        display_layout.addWidget(self.auto_scroll_check, 1, 0, 1, 2)
+        
+        self.timestamp_check = QCheckBox('Afficher timestamps')
+        display_layout.addWidget(self.timestamp_check, 2, 0, 1, 2)
+        
+        self.display_group.setLayout(display_layout)
+        
+        # Stocker les widgets du groupe d'affichage
+        self.display_widgets = [
+            self.display_format_label, self.display_format,
+            self.auto_scroll_check, self.timestamp_check
+        ]
+        
+        layout.addWidget(self.display_group)
+        
+        # Groupe pour les paramètres de connexion avancés
+        self.serial_group = QGroupBox("Paramètres de connexion avancés")
+        self.serial_group.setCheckable(True)
+        self.serial_group.setChecked(False)  # Décoché par défaut
+        serial_layout = QGridLayout()
+        
+        # Paramètres série
+        self.data_label = QLabel('Bits de données:')
+        serial_layout.addWidget(self.data_label, 0, 0)
+        self.data_select = QComboBox()
+        self.data_select.addItems(['5', '6', '7', '8'])
+        self.data_select.setCurrentText('8')
+        serial_layout.addWidget(self.data_select, 0, 1)
+        
+        self.parity_label = QLabel('Parité:')
+        serial_layout.addWidget(self.parity_label, 0, 2)
+        self.parity_select = QComboBox()
+        self.parity_select.addItems(['Aucune', 'Paire', 'Impaire'])
+        serial_layout.addWidget(self.parity_select, 0, 3)
+        
+        self.stop_label = QLabel('Bits de stop:')
+        serial_layout.addWidget(self.stop_label, 1, 0)
+        self.stop_select = QComboBox()
+        self.stop_select.addItems(['1', '1.5', '2'])
+        serial_layout.addWidget(self.stop_select, 1, 1)
+        
+        self.flow_label = QLabel('Contrôle de flux:')
+        serial_layout.addWidget(self.flow_label, 1, 2)
+        self.flow_select = QComboBox()
+        self.flow_select.addItems(['Aucun', 'XON/XOFF', 'RTS/CTS', 'DSR/DTR'])
+        serial_layout.addWidget(self.flow_select, 1, 3)
+        
+        self.serial_group.setLayout(serial_layout)
+        
+        # Stocker les widgets du groupe série
+        self.serial_widgets = [
+            self.data_label, self.data_select,
+            self.parity_label, self.parity_select,
+            self.stop_label, self.stop_select,
+            self.flow_label, self.flow_select
+        ]
+        
+        layout.addWidget(self.serial_group)
+        
+        # Boutons de sauvegarde/restauration
+        btn_layout = QHBoxLayout()
+        self.save_btn = QPushButton("Sauvegarder les paramètres")
+        self.save_btn.setMinimumWidth(150)
+        btn_layout.addWidget(self.save_btn)
+        
+        self.load_btn = QPushButton("Restaurer les paramètres")
+        self.load_btn.setMinimumWidth(150)
+        btn_layout.addWidget(self.load_btn)
+        
+        self.reset_btn = QPushButton("Réinitialiser")
+        self.reset_btn.setMinimumWidth(100)
+        btn_layout.addWidget(self.reset_btn)
+        
+        layout.addLayout(btn_layout)
+        layout.addStretch()
+        
+        self.setLayout(layout)
+    
+    def connectSignals(self):
+        """Connecte les signaux des widgets."""
+        # Signaux des groupes (cocher/décocher)
+        self.send_group.toggled.connect(self.on_send_group_toggled)
+        self.display_group.toggled.connect(self.on_display_group_toggled)
+        self.serial_group.toggled.connect(self.on_serial_group_toggled)
+        
+        # Signaux des paramètres d'envoi
+        self.format_select.currentTextChanged.connect(self.on_send_settings_changed)
+        self.eol_select.currentTextChanged.connect(self.on_send_settings_changed)
+        self.repeat_check.toggled.connect(self.on_send_settings_changed)
+        self.repeat_interval.textChanged.connect(self.on_send_settings_changed)
+        
+        # Signaux des paramètres d'affichage
+        self.display_format.currentTextChanged.connect(self.on_display_settings_changed)
+        self.auto_scroll_check.toggled.connect(self.on_display_settings_changed)
+        self.timestamp_check.toggled.connect(self.on_display_settings_changed)
+        
+        # Signaux des paramètres série
+        self.data_select.currentTextChanged.connect(self.on_serial_settings_changed)
+        self.parity_select.currentTextChanged.connect(self.on_serial_settings_changed)
+        self.stop_select.currentTextChanged.connect(self.on_serial_settings_changed)
+        self.flow_select.currentTextChanged.connect(self.on_serial_settings_changed)
+        
+        # Signaux des boutons
+        self.save_btn.clicked.connect(self.save_settings)
+        self.load_btn.clicked.connect(self.load_settings)
+        self.reset_btn.clicked.connect(self.reset_settings)
+    
+    def on_send_group_toggled(self, checked: bool):
+        """Appelé quand le groupe d'envoi est coché/décoché."""
+        # Masquer/afficher tous les widgets du groupe
+        for widget in self.send_widgets:
+            widget.setVisible(checked)
+        
+        if checked:
+            self.on_send_settings_changed()
+    
+    def on_display_group_toggled(self, checked: bool):
+        """Appelé quand le groupe d'affichage est coché/décoché."""
+        # Masquer/afficher tous les widgets du groupe
+        for widget in self.display_widgets:
+            widget.setVisible(checked)
+        
+        if checked:
+            self.on_display_settings_changed()
+    
+    def on_serial_group_toggled(self, checked: bool):
+        """Appelé quand le groupe série est coché/décoché."""
+        # Masquer/afficher tous les widgets du groupe
+        for widget in self.serial_widgets:
+            widget.setVisible(checked)
+        
+        if checked:
+            self.on_serial_settings_changed()
+    
+    def on_send_settings_changed(self):
+        """Appelé quand les paramètres d'envoi changent."""
+        if self.send_group.isChecked():
+            settings = self.get_send_settings()
+            self.send_settings_changed.emit(settings)
+    
+    def on_display_settings_changed(self):
+        """Appelé quand les paramètres d'affichage changent."""
+        if self.display_group.isChecked():
+            settings = self.get_display_settings()
+            self.display_settings_changed.emit(settings)
+    
+    def on_serial_settings_changed(self):
+        """Appelé quand les paramètres série changent."""
+        if self.serial_group.isChecked():
+            settings = self.get_serial_settings()
+            self.serial_settings_changed.emit(settings)
+    
+    def save_settings(self):
+        """Sauvegarde les paramètres actuels."""
+        try:
+            settings = {
+                'send_group_enabled': self.send_group.isChecked(),
+                'display_group_enabled': self.display_group.isChecked(),
+                'serial_group_enabled': self.serial_group.isChecked(),
+                'send_settings': self.get_send_settings(),
+                'display_settings': self.get_display_settings(),
+                'serial_settings': self.get_serial_settings()
+            }
+            
+            # Sauvegarder dans un fichier JSON
+            import json
+            with open('advanced_settings.json', 'w') as f:
+                json.dump(settings, f, indent=2)
+            
+            logger.info("Paramètres avancés sauvegardés")
+            
+        except Exception as e:
+            logger.error(f"Erreur lors de la sauvegarde des paramètres: {e}")
+    
+    def load_settings(self):
+        """Charge les paramètres sauvegardés."""
+        try:
+            import json
+            with open('advanced_settings.json', 'r') as f:
+                settings = json.load(f)
+            
+            # Restaurer l'état des groupes
+            self.send_group.setChecked(settings.get('send_group_enabled', False))
+            self.display_group.setChecked(settings.get('display_group_enabled', False))
+            self.serial_group.setChecked(settings.get('serial_group_enabled', False))
+            
+            # Restaurer les paramètres d'envoi
+            send_settings = settings.get('send_settings', {})
+            if 'format' in send_settings:
+                self.format_select.setCurrentText(send_settings['format'])
+            if 'eol' in send_settings:
+                self.eol_select.setCurrentText(send_settings['eol'])
+            if 'repeat' in send_settings:
+                self.repeat_check.setChecked(send_settings['repeat'])
+            if 'interval' in send_settings:
+                self.repeat_interval.setText(str(send_settings['interval']))
+            
+            # Restaurer les paramètres d'affichage
+            display_settings = settings.get('display_settings', {})
+            if 'format' in display_settings:
+                self.display_format.setCurrentText(display_settings['format'])
+            if 'auto_scroll' in display_settings:
+                self.auto_scroll_check.setChecked(display_settings['auto_scroll'])
+            if 'timestamp' in display_settings:
+                self.timestamp_check.setChecked(display_settings['timestamp'])
+            
+            # Restaurer les paramètres série
+            serial_settings = settings.get('serial_settings', {})
+            if 'bytesize' in serial_settings:
+                self.data_select.setCurrentText(str(serial_settings['bytesize']))
+            if 'parity' in serial_settings:
+                parity_reverse_map = {'N': 'Aucune', 'E': 'Paire', 'O': 'Impaire'}
+                self.parity_select.setCurrentText(parity_reverse_map.get(serial_settings['parity'], 'Aucune'))
+            if 'stopbits' in serial_settings:
+                self.stop_select.setCurrentText(str(serial_settings['stopbits']))
+            
+            logger.info("Paramètres avancés chargés")
+            
+        except FileNotFoundError:
+            logger.info("Aucun fichier de paramètres trouvé")
+        except Exception as e:
+            logger.error(f"Erreur lors du chargement des paramètres: {e}")
+    
+    def reset_settings(self):
+        """Remet les paramètres par défaut."""
+        # Décocher tous les groupes
+        self.send_group.setChecked(False)
+        self.display_group.setChecked(False)
+        self.serial_group.setChecked(False)
+        
+        # Remettre les valeurs par défaut
+        self.format_select.setCurrentText('ASCII')
+        self.eol_select.setCurrentText('Aucun')
+        self.repeat_check.setChecked(False)
+        self.repeat_interval.setText('1000')
+        
+        self.display_format.setCurrentText('ASCII')
+        self.auto_scroll_check.setChecked(True)
+        self.timestamp_check.setChecked(False)
+        
+        self.data_select.setCurrentText('8')
+        self.parity_select.setCurrentText('Aucune')
+        self.stop_select.setCurrentText('1')
+        self.flow_select.setCurrentText('Aucun')
+        
+        logger.info("Paramètres remis par défaut")
+    
+    def get_send_settings(self):
+        """Retourne les paramètres d'envoi."""
+        return {
+            'format': self.format_select.currentText(),
+            'eol': self.eol_select.currentText(),
+            'repeat': self.repeat_check.isChecked(),
+            'interval': self.repeat_interval.text()
+        }
+    
+    def get_display_settings(self) -> dict:
+        """Retourne les paramètres d'affichage."""
+        return {
+            'format': self.display_format.currentText(),
+            'auto_scroll': self.auto_scroll_check.isChecked(),
+            'timestamp': self.timestamp_check.isChecked()
+        }
+    
+    def get_serial_settings(self) -> dict:
+        """Retourne les paramètres série avancés."""
+        parity_map = {'Aucune': 'N', 'Paire': 'E', 'Impaire': 'O'}
+        stop_bits_map = {'1': 1, '1.5': 1.5, '2': 2}
+        flow_control_map = {
+            'Aucun': {'xonxoff': False, 'rtscts': False, 'dsrdtr': False},
+            'XON/XOFF': {'xonxoff': True, 'rtscts': False, 'dsrdtr': False},
+            'RTS/CTS': {'xonxoff': False, 'rtscts': True, 'dsrdtr': False},
+            'DSR/DTR': {'xonxoff': False, 'rtscts': False, 'dsrdtr': True}
+        }
+        
+        return {
+            'bytesize': int(self.data_select.currentText()),
+            'parity': parity_map[self.parity_select.currentText()],
+            'stopbits': stop_bits_map[self.stop_select.currentText()],
+            **flow_control_map[self.flow_select.currentText()]
+        }
