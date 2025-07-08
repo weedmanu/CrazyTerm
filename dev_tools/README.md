@@ -2,29 +2,29 @@
 
 Ce dossier contient les outils de développement et de validation pour le projet CrazyTerm.
 
-## Scripts disponibles
+## 🧰 Scripts disponibles
 
 ### `quality_validator.py`
 
-Script de validation complète de la qualité du code. Vérifie :
+Script de validation complète de la qualité du code. Vérifie :
 - Architecture du projet
 - Qualité du code (8 métriques)
 - Performances et optimisations
 - Score global détaillé
 
-**Utilisation :**
+**Utilisation :**
 ```bash
 python dev_tools/quality_validator.py
 ```
 
 ### `pre_release_check.py`
 
-Checklist automatisée avant publication :
+Checklist automatisée avant publication :
 - Lance le validateur de qualité
 - Vérifie les dépendances obsolètes
 - Contrôle la documentation et le packaging
 
-**Utilisation :**
+**Utilisation :**
 ```bash
 python dev_tools/pre_release_check.py
 ```
@@ -33,7 +33,7 @@ python dev_tools/pre_release_check.py
 
 Purge tous les fichiers temporaires, caches, logs, dossiers de build, etc.
 
-**Utilisation :**
+**Utilisation :**
 ```bash
 python dev_tools/purge_project.py
 ```

@@ -2,7 +2,7 @@
 
 Terminal série avancé avec interface graphique PyQt5.
 
-## 🚀 Démarrage rapide (Utilisateur final)
+## 💡 Démarrage rapide (Utilisateur final)
 
 ### Installation autonome (RECOMMANDÉ)
 ```cmd
@@ -25,7 +25,7 @@ dist\CrazyTerm.exe
 
 Le dossier `dist\portable\` peut être distribué sur n'importe quel PC Windows.
 
-## 🛠️ Pour les développeurs
+## 🖥️ Pour les développeurs
 
 ### Lancement depuis le code source
 ```bash
@@ -54,7 +54,7 @@ build\install_crazyterm.bat
 - Aucune dépendance externe requise
 - Package prêt à distribuer
 
-## 🔍 Outils de développement
+## 🧰 Outils de développement
 Voir `dev_tools/README.md` pour la liste des scripts de validation et d'automatisation.
 
 ## 📄 Dépendances principales
