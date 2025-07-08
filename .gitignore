@@ -167,3 +167,9 @@ build/
 dist/
 *.exe
 *.msi
+
+# Exceptions : suivre les scripts utiles dans build/
+!build/
+!build/install_crazyterm.py
+!build/README.md
+!build/.gitkeep
