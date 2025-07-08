@@ -1,173 +1,145 @@
-# CrazySerialTerm
+# CrazyTerm
 
 Terminal série avancé avec interface graphique PyQt5.
 
-## 🚀 Démarrage rapide (Utilisateur final)
+## 🚀 Démarrage rapide
 
-### Installation autonome (RECOMMANDÉ)
+### Installation et utilisation
 ```cmd
-# Téléchargez le projet depuis GitHub
-# Puis exécutez :
-build\setup_autonomous.bat
+# Cloner le projet
+git clone https://github.com/votre-username/CrazyTerm.git
+cd CrazyTerm
+
+# Installer les dépendances
+pip install -r requirements.txt
+
+# Lancer l'application
+python crazyterm.py
 ```
 
-**Aucune installation préalable requise !**
-- Le script détecte/guide l'installation de Python
-- Crée automatiquement un environnement isolé
-- Installe toutes les dépendances
-- Génère l'exécutable portable
-
-### Utilisation portable
-Après le build, utilisez directement :
+### Compilation en exécutable
 ```cmd
-dist\CrazySerialTerm.exe
+# Utiliser le script d'installation automatique
+build\install_crazyterm.bat
 ```
-
-Le dossier `dist\portable\` peut être distribué sur n'importe quel PC Windows.
-
-## 🔧 Pour les développeurs
-
-### Lancement depuis le code source
-```bash
-python crazyserialterm.py
-```
-
-### Modification du code
-Le projet est organisé en modules clairs :
-- `core/` : Cœur de l'application
-- `communication/` : Gestion série
-- `interface/` : Interface utilisateur
-- `system/` : Utilitaires système
-- `tools/` : Outils intégrés
-
-## 📦 Compilation en exécutable
-
-### 🎯 Installation autonome (recommandé)
-```cmd
-build\setup_autonomous.bat
-```
-**LA SOLUTION TOUT-EN-UN :**
-- ✅ Installation complète automatique
-- ✅ Environnement virtuel isolé
-- ✅ Génération d'exécutable portable
-- ✅ Aucune dépendance externe requise
-- ✅ Package prêt à distribuer
-
-### ⚡ Build rapide (développeurs)
-```cmd
-build\build_quick.bat
-```
-- Pour utilisateurs ayant Python installé
-- Build direct sans environnement virtuel
-
-### � Test de l'environnement
-```cmd
-build\test_environment.bat
-```
-- Diagnostic complet de l'environnement
-- Vérification des dépendances
-- Recommandations personnalisées
 
 ## 📁 Structure du projet
 
 ```
-CrazySerialTerm/
-├── DEMARRER.bat                # 🚀 Script de démarrage principal
-├── INSTRUCTIONS.md             # 📋 Instructions détaillées
-├── crazyserialterm.py          # 🎯 Application principale
+CrazyTerm/
+├── crazyterm.py                # 🎯 Application principale
 ├── requirements.txt            # 📦 Dépendances Python
-├── .gitignore                  # 🚫 Fichiers ignorés par Git
-├── README.md                   # 📖 Documentation principale
-├── assets/                     # 🖼️ Ressources (icônes)
-├── build/                      # 🏗️ Scripts de compilation
-│   ├── setup_autonomous.bat    # 🎯 Installation autonome
-│   ├── build_quick.bat         # ⚡ Build rapide
-│   ├── test_environment.bat    # 🔍 Test environnement
-│   └── README.md               # 📋 Documentation build
-├── communication/              # 📡 Module communication série
-├── core/                       # 🧠 Cœur de l'application
-├── interface/                  # 🎨 Interface utilisateur
-├── system/                     # ⚙️ Utilitaires système
-├── tools/                      # 🔧 Outils intégrés
-└── config/                     # 📋 Configuration
+├── README.md                   # 📖 Documentation
+├── assets/
+│   └── CrazyTerm.ico          # 🖼️ Icône de l'application
+├── build/
+│   ├── install_crazyterm.bat  # �️ Script d'installation/build
+│   └── README.md              # 📋 Documentation build
+├── communication/             # 📡 Module communication série
+│   ├── __init__.py
+│   └── serial_communication.py
+├── core/                      # 🧠 Cœur de l'application
+│   ├── __init__.py
+│   ├── main_window.py         # Fenêtre principale
+│   └── config_manager.py      # Gestionnaire de configuration
+├── interface/                 # 🎨 Interface utilisateur
+│   ├── __init__.py
+│   ├── interface_components.py # Composants UI
+│   └── theme_manager.py       # Gestionnaire de thèmes
+├── system/                    # ⚙️ Utilitaires système
+│   ├── __init__.py
+│   ├── custom_exceptions.py   # Exceptions personnalisées
+│   ├── error_handling.py      # Gestion d'erreurs
+│   ├── memory_optimizer.py    # Optimisation mémoire
+│   └── utilities.py           # Utilitaires divers
+├── tools/                     # 🔧 Outils intégrés
+│   ├── __init__.py
+│   ├── tool_checksum.py       # Calculateur checksum
+│   └── tool_converter.py      # Convertisseur de données
+└── config/                    # 📋 Configuration
+    ├── settings.ini           # Paramètres principaux
+    ├── advanced.json          # Paramètres avancés
+    └── performance.ini        # Configuration performance
 ```
 
-### 🎯 Fichiers principaux pour utilisateurs
+## 🔧 Fonctionnalités
 
-- **`DEMARRER.bat`** : Point d'entrée principal - Lance l'installation/build automatique
-- **`INSTRUCTIONS.md`** : Guide détaillé d'utilisation
-- **`build/setup_autonomous.bat`** : Script d'installation autonome (recommandé)
-- **`dist/CrazySerialTerm.exe`** : Exécutable final (généré après build)
-└── docs/                       # Documentation
-    ├── health_report.txt        # Rapport de santé
-    └── cleanup_log.txt          # Log de nettoyage
-```
+### Communication série
+- ✅ Gestion robuste des connexions série
+- ✅ Détection automatique des ports
+- ✅ Gestion d'erreurs avancée avec circuit breaker
+- ✅ Support des paramètres série complets (baudrate, parité, bits...)
 
-## Installation
+### Interface utilisateur
+- ✅ Interface graphique moderne PyQt5
+- ✅ Thèmes personnalisables
+- ✅ Panneaux de configuration intuitifs
+- ✅ Affichage temps réel des données
 
-1. **Cloner le projet**
-   ```bash
-   git clone <repository>
-   cd CrazySerialTerm
-   ```
+### Outils intégrés
+- ✅ **Calculateur Checksum** : Calcul CRC, MD5, SHA
+- ✅ **Convertisseur de données** : Hex, ASCII, décimal, binaire
+- ✅ **Gestionnaire mémoire** : Optimisation automatique
 
-2. **Installer les dépendances**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Lancer l'application**
-   ```bash
-   python crazyserialterm.py
-   ```
-
-## Compilation en exécutable
-
-### Création complète avec installateur Windows
-```cmd
-build\build_installer.bat
-```
-Génère :
-- Exécutable sans console
-- Script d'installation pour Program Files
-- Raccourcis bureau et menu démarrer
-- Désinstallateur
-
-### Génération rapide (test)
-```cmd
-build\quick_build.bat
-```
-
-## Fonctionnalités
-
-- ✅ Communication série robuste avec gestion d'erreurs
-- ✅ Interface graphique moderne et intuitive
-- ✅ Thèmes personnalisables (clair, sombre, hacker)
-- ✅ Gestion mémoire optimisée
-- ✅ Outils intégrés (calculateur checksum, convertisseur)
-- ✅ Architecture modulaire et extensible
+### Système
+- ✅ Gestion d'erreurs robuste
+- ✅ Logging complet
 - ✅ Sauvegarde automatique des paramètres
+- ✅ Architecture modulaire extensible
 
-## Scripts utilitaires
+## 📋 Modules principaux
 
-- `scripts/launcher.py` - Lanceur avec vérifications système
-- `scripts/health_check.py` - Diagnostic complet du système
-- `scripts/maintenance.py` - Maintenance et réparations automatiques
+### Communication (`communication/`)
+- `serial_communication.py` : Gestionnaire série robuste avec thread de lecture
 
-## Configuration
+### Core (`core/`)
+- `main_window.py` : Fenêtre principale (classe `Terminal`)
+- `config_manager.py` : Gestionnaire de configuration
 
-- `config/settings.ini` - Paramètres principaux de l'application
-- `config/advanced.json` - Paramètres avancés et personnalisation
+### Interface (`interface/`)
+- `interface_components.py` : Composants UI (panneaux de connexion, paramètres)
+- `theme_manager.py` : Gestion des thèmes
 
-## Support
+### System (`system/`)
+- `error_handling.py` : Circuit breaker et gestion d'erreurs
+- `memory_optimizer.py` : Optimisation mémoire ultra-performante
+- `custom_exceptions.py` : Exceptions spécifiques à l'application
+- `utilities.py` : Utilitaires système
 
-L'application génère automatiquement des logs et rapports de diagnostic dans le dossier `docs/`.
+### Tools (`tools/`)
+- `tool_checksum.py` : Calculateur de sommes de contrôle
+- `tool_converter.py` : Convertisseur de formats de données
 
-## Architecture
+## 🛠️ Installation pour développeurs
 
-Le code est organisé en modules logiques :
-- **communication** : Gestion de la communication série
-- **core** : Cœur de l'application (fenêtre principale, configuration)
-- **interface** : Composants d'interface utilisateur
-- **system** : Utilitaires système et gestion d'erreurs
-- **tools** : Outils intégrés (checksum, convertisseur)
+### Prérequis
+- Python 3.8+
+- PyQt5
+- pyserial
+- pyinstaller (pour la compilation)
+
+### Dépendances
+```txt
+PyQt5>=5.15.0,<5.16.0
+pyserial>=3.5,<4.0
+pyinstaller>=6.0,<7.0
+```
+
+### Configuration
+Les fichiers de configuration se trouvent dans `config/` :
+- `settings.ini` : Paramètres de l'application
+- `advanced.json` : Configuration avancée
+- `performance.ini` : Paramètres de performance
+
+## 📄 License
+
+Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
+
+## 🤝 Contribution
+
+Les contributions sont les bienvenues ! N'hésitez pas à :
+1. Fork le projet
+2. Créer une branche pour votre fonctionnalité
+3. Commit vos changements
+4. Push vers la branche
+5. Ouvrir une Pull Request
