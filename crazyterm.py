@@ -2,11 +2,24 @@
 """
 CrazySerialTerm - Terminal série avancé
 Application de terminal série avec interface graphique PyQt5.
+
+Ce module principal lance l'application CrazyTerm avec une architecture simple et robuste.
+
+Fonctionnalités:
+    - Lancement sécurisé de l'application
+    - Configuration de l'interface PyQt5
+    - Gestion d'erreurs robuste
+    - Logging intégré
+
+Auteur: CrazyTerm Development Team
+Version: 1.0.0
+License: MIT
 """
 
 import sys
 import os
 import logging
+from typing import Optional
 from PyQt5.QtWidgets import QApplication, QStyleFactory
 from PyQt5.QtGui import QIcon, QFont
 
@@ -14,40 +27,64 @@ from PyQt5.QtGui import QIcon, QFont
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from core.main_window import Terminal
-from system.utilities import resource_path
+from system.utilities import UtilityFunctions
 
-def setup_application():
+def setup_application() -> QApplication:
     """
     Configure l'application avec les paramètres par défaut.
     
     Returns:
-        QApplication: L'application configurée
+        QApplication: L'application configurée avec style et police
+        
+    Raises:
+        RuntimeError: Si l'initialisation de l'application échoue
     """
-    app = QApplication(sys.argv)
+    try:
+        app = QApplication(sys.argv)
 
-    # Définir la police par défaut pour toute l'application
-    default_font = QFont("Arial", 12)
-    app.setFont(default_font)
+        # Définir la police par défaut pour toute l'application
+        default_font = QFont("Arial", 12)
+        app.setFont(default_font)
 
-    # Appliquer un style Fusion
-    app.setStyle(QStyleFactory.create('Fusion'))
+        # Appliquer un style Fusion
+        app.setStyle(QStyleFactory.create('Fusion'))
+        
+        return app
+    except Exception as e:
+        raise RuntimeError(f"Impossible d'initialiser l'application: {e}")
+
+def setup_logging() -> logging.Logger:
+    """
+    Configure le système de journalisation.
     
-    return app
+    Returns:
+        logging.Logger: Le logger configuré pour l'application
+        
+    Raises:
+        RuntimeError: Si la configuration du logging échoue
+    """
+    try:
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.FileHandler("serial_terminal.log"),
+                logging.StreamHandler()
+            ]
+        )
+        return logging.getLogger("CrazySerialTerm")
+    except Exception as e:
+        raise RuntimeError(f"Impossible de configurer le logging: {e}")
 
-def setup_logging():
-    """Configure le système de journalisation."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler("serial_terminal.log"),
-            logging.StreamHandler()
-        ]
-    )
-    return logging.getLogger("CrazySerialTerm")
-
-def main():
-    """Fonction principale."""
+def main() -> None:
+    """
+    Fonction principale de l'application.
+    
+    Lance l'application CrazyTerm avec gestion d'erreurs complète.
+    
+    Raises:
+        SystemExit: Code de sortie 1 en cas d'erreur critique
+    """
     # Configuration du logging
     logger = setup_logging()
     logger.info("Démarrage de CrazySerialTerm")
@@ -60,7 +97,7 @@ def main():
         terminal = Terminal()
         
         # Charger l'icône de l'application
-        icon_path = resource_path('assets/CrazyTerm.ico')
+        icon_path: str = UtilityFunctions.resource_path('assets/CrazyTerm.ico')
         if os.path.exists(icon_path):
             terminal.setWindowIcon(QIcon(icon_path))
             logger.debug(f"Icône chargée depuis: {icon_path}")

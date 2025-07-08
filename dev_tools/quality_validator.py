@@ -1,398 +1,395 @@
 #!/usr/bin/env python3
 """
-Script de validation ULTRA-OPTIMISÉ pour atteindre 100%
-Version finale avec critères ajustés pour la perfection !
+Script de validation pour CrazyTerm - Version Simple et Efficace
+
+Ce script audite la qualité, l'architecture et la performance du projet CrazyTerm.
+Il applique des critères stricts sur chaque axe qualité (documentation, type hints, gestion d'erreur, etc.)
+L'objectif est d'obtenir 100% sur chaque critère, avec un reporting vertical et lisible des fichiers non conformes.
+
+Usage :
+    python dev_tools/quality_validator.py
+
+Sortie :
+    Affiche les scores détaillés et la liste des fichiers à corriger pour chaque critère.
 """
 
 import os
 import sys
+from typing import Optional, List, Dict, Any
+import ast
 
-def validate_code_quality_ultra():
-    """Validation ULTRA-STRICTE de la qualité du code pour 100%."""
-    print("\n=== 🎯 VALIDATION ULTRA-QUALITÉ POUR 100% ===\n")
-    
-    quality_metrics = {
-        'error_handling': 0,
-        'logging': 0, 
-        'documentation': 0,
-        'type_hints': 0,
-        'class_structure': 0,
-        'function_annotations': 0,
-        'imports_optimization': 0,
-        'code_organization': 0
-    }
-    
-    total_files = 0
-    python_files = []
-    
-    # Vérifier si on est dans le bon répertoire
-    if not os.path.exists('crazyterm.py'):
-        print("❌ Script non exécuté depuis le répertoire racine du projet")
-        print("   Veuillez exécuter depuis le répertoire contenant crazyterm.py")
-        return 0
-    
-    # Collecter tous les fichiers Python (plus sélectif pour la qualité)
-    for root, dirs, files in os.walk('.'):
-        dirs[:] = [d for d in dirs if not d.startswith('.') and d != '__pycache__']
-        
-        for file in files:
-            if (file.endswith('.py') and 
-                not file.startswith('test_') and 
-                not file.startswith('validate_') and
-                not file.startswith('check_') and
-                not file.startswith('rapport_') and
-                not file.startswith('quality_')):
-                total_files += 1
-                file_path = os.path.join(root, file)
-                python_files.append(file_path)
-    
-    print(f"📊 Analyse ULTRA-STRICTE de {total_files} fichiers Python...")
-    
-    for file_path in python_files:
+class QualityValidator:
+    """
+    Classe principale pour la validation de la qualité, de l'architecture et des performances du projet CrazyTerm.
+    Toutes les méthodes de validation sont des méthodes de classe.
+    """
+
+    @staticmethod
+    def find_project_root(filename: str = "crazyterm.py") -> Optional[str]:
+        current: str = os.path.abspath(os.getcwd())
+        root: Optional[str] = None
+        while True:
+            if os.path.exists(os.path.join(current, filename)):
+                root = current
+                break
+            parent: str = os.path.dirname(current)
+            if parent == current:
+                break
+            current = parent
+        return root
+
+    @classmethod
+    def validate_code_quality(cls) -> float:
+        print("\n=== [VALIDATION QUALITÉ DU CODE] ===\n")
+        if not os.path.exists('crazyterm.py'):
+            print("❌ Script non exécuté depuis le répertoire racine du projet")
+            print("   Veuillez exécuter depuis le répertoire contenant crazyterm.py")
+            return 0
+
+        # --- Définition des cibles pertinentes pour chaque critère ---
+        metrics_targets: Dict[str, List[str]] = {
+            'error_handling': [
+                'core/main_window.py', 'core/config_manager.py',
+                'system/memory_optimizer.py', 'system/utilities.py',
+                'system/error_handling.py', 'system/custom_exceptions.py',
+                'tools/tool_converter.py', 'tools/tool_checksum.py',
+                'interface/interface_components.py', 'interface/theme_manager.py',
+                'communication/serial_communication.py'
+            ],
+            'logging': [
+                'core/main_window.py', 'core/config_manager.py',
+                'system/memory_optimizer.py', 'system/utilities.py',
+                'system/error_handling.py', 'system/custom_exceptions.py',
+                'tools/tool_converter.py', 'tools/tool_checksum.py',
+                'interface/interface_components.py', 'interface/theme_manager.py',
+                'communication/serial_communication.py'
+            ],
+            'type_hints': [
+                'core/main_window.py', 'core/config_manager.py',
+                'system/memory_optimizer.py', 'system/utilities.py',
+                'system/error_handling.py', 'system/custom_exceptions.py',
+                'tools/tool_converter.py', 'tools/tool_checksum.py',
+                'interface/interface_components.py', 'interface/theme_manager.py',
+                'communication/serial_communication.py'
+            ],
+            'documentation': [
+                'core/main_window.py', 'core/config_manager.py',
+                'system/memory_optimizer.py', 'system/utilities.py',
+                'system/error_handling.py', 'system/custom_exceptions.py',
+                'tools/tool_converter.py', 'tools/tool_checksum.py',
+                'interface/interface_components.py', 'interface/theme_manager.py',
+                'communication/serial_communication.py'
+            ],
+            'class_structure': [
+                'core/main_window.py', 'core/config_manager.py',
+                'system/memory_optimizer.py', 'system/utilities.py',
+                'tools/tool_converter.py', 'tools/tool_checksum.py',
+                'interface/interface_components.py', 'communication/serial_communication.py'
+            ],
+            'imports_optimization': [
+                'core/main_window.py', 'core/config_manager.py',
+                'system/memory_optimizer.py', 'system/utilities.py',
+                'system/error_handling.py', 'system/custom_exceptions.py',
+                'tools/tool_converter.py', 'tools/tool_checksum.py',
+                'interface/interface_components.py', 'interface/theme_manager.py',
+                'communication/serial_communication.py'
+            ],
+            'code_organization': [
+                'core/main_window.py', 'core/config_manager.py',
+                'system/memory_optimizer.py', 'system/utilities.py',
+                'tools/tool_converter.py', 'tools/tool_checksum.py',
+                'interface/interface_components.py', 'communication/serial_communication.py'
+            ],
+        }
+
+        # --- Collecte des fichiers Python métiers ---
+        python_files: List[str] = []
+        for root, dirs, files in os.walk('.'):
+            dirs[:] = [d for d in dirs if not d.startswith('.') and d != '__pycache__']
+            for file in files:
+                if (file.endswith('.py') and 
+                    not file.startswith('test_') and 
+                    not file.startswith('validate_') and
+                    not file.startswith('check_') and
+                    not file.startswith('quality_')):
+                    file_path = os.path.join(root, file)
+                    python_files.append(file_path)
+
+        # --- Initialisation des résultats ---
+        results: Dict[str, Dict[str, Any]] = {}
+        for metric, targets in metrics_targets.items():
+            results[metric] = {
+                'conformes': 0,
+                'non_conformes': [],
+                'total': len(targets)
+            }
+
+        # --- Analyse AST stricte par critère ---
+        for metric, targets in metrics_targets.items():
+            for rel_path_norm in targets:
+                file_path = os.path.normpath(rel_path_norm)
+                if not os.path.exists(file_path):
+                    results[metric]['non_conformes'].append(f"{rel_path_norm} (absent)")
+                    continue
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    tree = ast.parse(content)
+                    # Analyse par critère
+                    if metric == 'error_handling':
+                        has_try = any(isinstance(node, ast.Try) for node in ast.walk(tree))
+                        has_except = any(isinstance(node, ast.ExceptHandler) for node in ast.walk(tree))
+                        has_raise = any(isinstance(node, ast.Raise) for node in ast.walk(tree))
+                        if has_try and has_except and has_raise:
+                            results[metric]['conformes'] += 1
+                        else:
+                            results[metric]['non_conformes'].append(rel_path_norm)
+                    elif metric == 'logging':
+                        has_logger = False
+                        has_log_call = False
+                        for node in ast.walk(tree):
+                            if isinstance(node, ast.Assign):
+                                for target in node.targets:
+                                    if isinstance(target, ast.Name) and target.id == 'logger':
+                                        if isinstance(node.value, ast.Call):
+                                            func = node.value.func
+                                            if isinstance(func, ast.Attribute):
+                                                if isinstance(func.value, ast.Name) and func.value.id == 'logging' and func.attr == 'getLogger':
+                                                    has_logger = True
+                            if isinstance(node, ast.Call):
+                                func = node.func
+                                if isinstance(func, ast.Attribute):
+                                    if isinstance(func.value, ast.Name) and func.value.id == 'logger':
+                                        if func.attr in ('info', 'error', 'warning', 'debug'):
+                                            has_log_call = True
+                        if has_logger and has_log_call:
+                            results[metric]['conformes'] += 1
+                        else:
+                            results[metric]['non_conformes'].append(rel_path_norm)
+                    elif metric == 'type_hints':
+                        has_typing = 'from typing import' in content
+                        all_annotated = True
+                        for node in ast.walk(tree):
+                            if isinstance(node, ast.FunctionDef):
+                                if node.name in ('__init__', '__new__'):
+                                    if any(arg.annotation is None for arg in node.args.args if arg.arg not in ('self', 'cls')):
+                                        all_annotated = False
+                                        break
+                                else:
+                                    if node.returns is None:
+                                        all_annotated = False
+                                        break
+                                    if any(arg.annotation is None for arg in node.args.args if arg.arg not in ('self', 'cls')):
+                                        all_annotated = False
+                                        break
+                                    if node.args.vararg and node.args.vararg.annotation is None:
+                                        all_annotated = False
+                                        break
+                                    if node.args.kwarg and node.args.kwarg.annotation is None:
+                                        all_annotated = False
+                                        break
+                        if has_typing and all_annotated:
+                            results[metric]['conformes'] += 1
+                        else:
+                            results[metric]['non_conformes'].append(rel_path_norm)
+                    elif metric == 'documentation':
+                        has_module_doc = ast.get_docstring(tree) is not None
+                        missing_class = [node.name for node in ast.walk(tree) if isinstance(node, ast.ClassDef) and not ast.get_docstring(node)]
+                        missing_func = [node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef) and not ast.get_docstring(node)]
+                        has_class_doc = not missing_class
+                        has_func_doc = not missing_func
+                        if has_module_doc and has_class_doc and has_func_doc:
+                            results[metric]['conformes'] += 1
+                        else:
+                            msg = rel_path_norm
+                            if not has_module_doc:
+                                msg += " [module sans docstring]"
+                            if missing_class:
+                                msg += f" [classes sans docstring: {missing_class}]"
+                            if missing_func:
+                                msg += f" [fonctions sans docstring: {missing_func}]"
+                            results[metric]['non_conformes'].append(msg)
+                    elif metric == 'class_structure':
+                        has_class = any(isinstance(node, ast.ClassDef) for node in ast.walk(tree))
+                        has_method = any(
+                            isinstance(node, ast.FunctionDef) and getattr(node, 'name', None) != '__init__'
+                            for node in ast.walk(tree)
+                        )
+                        if has_class and has_method:
+                            results[metric]['conformes'] += 1
+                        else:
+                            results[metric]['non_conformes'].append(rel_path_norm)
+                    elif metric == 'imports_optimization':
+                        if 'from __future__ import annotations' in content:
+                            results[metric]['conformes'] += 1
+                        else:
+                            results[metric]['non_conformes'].append(rel_path_norm)
+                    elif metric == 'code_organization':
+                        if 'def ' in content and '__all__' not in content:
+                            results[metric]['non_conformes'].append(rel_path_norm)
+                        else:
+                            results[metric]['conformes'] += 1
+                except Exception as e:
+                    results[metric]['non_conformes'].append(f"{rel_path_norm} (erreur: {e})")
+
+        # --- Affichage des résultats détaillés ---
+        print("\n=== Résultats détaillés de la validation ===")
+        percs: List[float] = []
+        for metric, data in results.items():
+            total = data['total']
+            conformes = data['conformes']
+            non_conformes = data['non_conformes']
+            score = (conformes / total) * 100 if total else 0.0
+            percs.append(score)
+            print(f"[OK] {metric} : {conformes}/{total} fichiers conformes ({score:.1f}%)")
+            if non_conformes:
+                print("   Fichiers non conformes :")
+                for file in non_conformes:
+                    print(f"    - {file}")
+        # --- Score global ---
+        global_score = sum(percs) / len(percs) if percs else 0.0
+        print(f"\n[SCORE GLOBAL QUALITÉ] : {global_score:.1f}%")
+        return global_score
+
+    @classmethod
+    def validate_robustness(cls) -> float:
+        """
+        Teste dynamiquement la robustesse du code (gestion d'erreur, retry, circuit breaker).
+        Retourne un score sur 100.
+        """
+        import sys, os
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        if project_root not in sys.path:
+            sys.path.insert(0, project_root)
+        print("\n=== [VALIDATION ROBUSTESSE] ===\n")
+        score = 0
+        total = 3
+        ok = 0
+        # Test retry_with_backoff
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-            
-            # 1. Gestion d'erreurs ULTRA-STRICTE
-            error_patterns = ['try:', 'except', 'raise', 'finally:', 'CrazySerialTermException']
-            if sum(1 for pattern in error_patterns if pattern in content) >= 2:
-                quality_metrics['error_handling'] += 1
-            
-            # 2. Logging ULTRA-STRICTE  
-            logging_patterns = ['logger.', 'logging.', 'log.debug', 'log.info', 'log.error', 'log.warning']
-            if sum(1 for pattern in logging_patterns if pattern in content) >= 2:
-                quality_metrics['logging'] += 1
-            
-            # 3. Documentation ULTRA-STRICTE
-            doc_patterns = ['"""', "'''", 'Args:', 'Returns:', 'Raises:']
-            if sum(1 for pattern in doc_patterns if pattern in content) >= 3:
-                quality_metrics['documentation'] += 1
-            
-            # 4. Type hints ULTRA-STRICTE
-            type_patterns = [' -> ', ': str', ': int', ': bool', ': List', ': Dict', ': Optional', 'from typing import']
-            if sum(1 for pattern in type_patterns if pattern in content) >= 2:
-                quality_metrics['type_hints'] += 1
-            
-            # 5. Structure des classes ULTRA-STRICTE (critères assouplis pour récompenser les améliorations)
-            if ('class ' in content and '__init__' in content and 
-                (content.count('def ') >= 1 or 'super().__init__' in content or '__str__' in content or '__repr__' in content)):
-                quality_metrics['class_structure'] += 1
-            
-            # 6. Annotations de fonctions ULTRA-STRICTE
-            if ('def ' in content and 
-                (('Args:' in content and 'Returns:' in content) or content.count('"""') >= 2)):
-                quality_metrics['function_annotations'] += 1
-            
-            # 7. Optimisation des imports
-            if ('from typing import' in content or 'import logging' in content):
-                quality_metrics['imports_optimization'] += 1
-            
-            # 8. Organisation du code
-            if (len(content.split('\n')) > 20 and content.count('\n\n') >= 3):
-                quality_metrics['code_organization'] += 1
-                
-        except Exception as e:
-            print(f"   ⚠️ Erreur lecture {file_path}: {e}")
-    
-    print(f"\n📊 Métriques ULTRA-QUALITÉ ({total_files} fichiers):")
-    total_score = 0
-    
-    for metric, count in quality_metrics.items():
-        percentage = (count / total_files) * 100 if total_files > 0 else 0
-        
-        # Critères ajustés pour 100%
-        if percentage >= 80:
-            status = "🌟"
-        elif percentage >= 70:
-            status = "✅" 
-        elif percentage >= 60:
-            status = "⚠️"
-        else:
-            status = "❌"
-            
-        print(f"   {status} {metric}: {count}/{total_files} ({percentage:.1f}%)")
-        total_score += percentage
-    
-    # Bonus pour excellence
-    excellence_bonus = 10 if total_score / len(quality_metrics) >= 75 else 5
-    adjusted_quality = (total_score / len(quality_metrics)) + excellence_bonus
-    
-    return min(100, adjusted_quality)
-
-def validate_architecture_ultra():
-    """Validation ULTRA de l'architecture."""
-    print("\n=== 🏗️ VALIDATION ULTRA-ARCHITECTURE ===\n")
-    
-    # Structure adaptée à votre projet réel
-    expected_structure = {
-        'core/': {
-            'files': ['main_window.py', 'config_manager.py'],
-            'description': 'Composants principaux'
-        },
-        'communication/': {
-            'files': ['serial_communication.py'],
-            'description': 'Communication série'
-        },
-        'interface/': {
-            'files': ['interface_components.py', 'theme_manager.py'],
-            'description': 'Interface utilisateur'
-        },
-        'system/': {
-            'files': ['error_handling.py', 'memory_optimizer.py', 'custom_exceptions.py', 'utilities.py'],
-            'description': 'Système et utilitaires'
-        },
-        'tools/': {
-            'files': [],  # Liste dynamique basée sur les fichiers présents
-            'description': 'Outils intégrés'
-        }
-    }
-    
-    # Découvrir automatiquement les fichiers d'outils présents
-    tools_dir = 'tools/'
-    if os.path.exists(tools_dir):
-        tools_files = []
-        for file in os.listdir(tools_dir):
-            if file.startswith('tool_') and file.endswith('.py'):
-                tools_files.append(file)
-        expected_structure['tools/']['files'] = tools_files
-    
-    score = 0
-    total = 0
-    bonus_points = 0
-    
-    for folder, info in expected_structure.items():
-        print(f"📁 {folder} - {info['description']}")
-        if os.path.exists(folder):
-            for file in info['files']:
-                total += 1
-                file_path = os.path.join(folder, file)
-                if os.path.exists(file_path):
-                    # Vérifier la qualité du fichier
-                    try:
-                        with open(file_path, 'r', encoding='utf-8') as f:
-                            content = f.read()
-                        
-                        if len(content) > 500:  # Fichier substantiel
-                            bonus_points += 0.5
-                        if '"""' in content:  # Documenté
-                            bonus_points += 0.5
-                            
-                        print(f"   ✅ {file}")
-                        score += 1
-                    except:
-                        print(f"   ⚠️ {file} (problème de lecture)")
-                        score += 0.5
-                else:
-                    print(f"   ❌ {file} manquant")
-        else:
-            print(f"   ❌ Dossier {folder} manquant")
-            total += len(info['files'])
-    
-    # Ajouter des points bonus pour l'organisation
-    if os.path.exists('crazyterm.py'):
-        bonus_points += 2
-    if os.path.exists('requirements.txt'):
-        bonus_points += 1
-    if os.path.exists('README.md'):
-        bonus_points += 1
-    
-    architecture_score = ((score + bonus_points) / total) * 100 if total > 0 else 0
-    architecture_score = min(100, architecture_score)
-    
-    print(f"\n📊 Score d'architecture ULTRA: {architecture_score:.1f}%")
-    return architecture_score
-
-def validate_performance_ultra():
-    """Validation ULTRA des performances."""
-    print("\n=== ⚡ VALIDATION ULTRA-PERFORMANCE ===\n")
-    
-    performance_features = []
-    
-    # Analyser les fonctionnalités de performance avec critères adaptés à votre structure
-    performance_checks = {
-        'system/memory_optimizer.py': {
-            'features': ['UltraMemoryManager', 'gc.collect', 'buffer', 'cache', 'pool', 'memory'],
-            'weight': 2.0
-        },
-        'core/main_window.py': {
-            'features': ['QTimer', 'batch', 'thread', 'buffer', 'optimize', 'flush'],
-            'weight': 1.5
-        },
-        'system/error_handling.py': {
-            'features': ['try:', 'except', 'raise', 'safe_execute', 'logger'],
-            'weight': 1.5
-        },
-        'communication/serial_communication.py': {
-            'features': ['QThread', 'buffer', 'timeout', 'queue', 'signal'],
-            'weight': 1.0
-        },
-        'core/config_manager.py': {
-            'features': ['json', 'cache', 'settings', 'QSettings'],
-            'weight': 1.0
-        },
-        'system/utilities.py': {
-            'features': ['resource_path', 'optimize', 'cache', 'utility'],
-            'weight': 1.0
-        }
-    }
-    
-    total_weight = 0
-    achieved_weight = 0
-    
-    for file_path, config in performance_checks.items():
-        features = config['features']
-        weight = config['weight']
-        total_weight += weight
-        
-        if os.path.exists(file_path):
+            from system.error_handling import retry_with_backoff
+            calls = {'count': 0}
+            @retry_with_backoff(max_retries=2, initial_delay=0.01)
+            def fail_func():
+                calls['count'] += 1
+                raise ValueError('fail')
             try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                
-                found_features = []
-                for feature in features:
-                    if feature.lower() in content.lower():
-                        found_features.append(feature)
-                        performance_features.append(f"✅ {feature} optimisé ({os.path.basename(file_path)})")
-                
-                # Score proportionnel aux fonctionnalités trouvées
-                feature_ratio = len(found_features) / len(features)
-                achieved_weight += weight * feature_ratio
-                        
-            except Exception as e:
-                performance_features.append(f"❌ Erreur lecture {file_path}: {e}")
-        else:
-            performance_features.append(f"⚠️ Fichier manquant: {file_path}")
-    
-    # Ajouter des bonus de performance
-    bonus_features = [
-        "🌟 Gestionnaire mémoire ULTRA-optimisé",
-        "🌟 Garbage collection intelligent et proactif", 
-        "🌟 Système de buffering multi-niveaux",
-        "🌟 Cache optimisé avec invalidation",
-        "🌟 Pool d'objets réutilisables avancé",
-        "🌟 Optimisation UI avec timers intelligents",
-        "🌟 Traitement par lots ultra-efficace",
-        "🌟 Gestion multi-thread robuste",
-        "🌟 Circuit breaker pattern avancé",
-        "🌟 Système de gestion d'erreurs ultra-robuste",
-        "🌟 Optimisations mémoire quasi-zero-copy",
-        "🌟 Architecture événementielle optimisée"
-    ]
-    
-    performance_features.extend(bonus_features)
-    
-    for feature in performance_features:
-        print(f"   {feature}")
-    
-    # Score basé sur le poids des fonctionnalités + bonus
-    base_score = (achieved_weight / total_weight) * 60 if total_weight > 0 else 0
-    bonus_score = min(40, len(bonus_features) * 3.3)  # Max 40 points de bonus
-    
-    performance_score = min(100, base_score + bonus_score)
-    return performance_score
+                fail_func()
+            except ValueError:
+                pass
+            if calls['count'] == 3:
+                print("[OK] retry_with_backoff fonctionne (3 tentatives)")
+                ok += 1
+            else:
+                print("❌ retry_with_backoff ne fonctionne pas")
+        except Exception as e:
+            print(f"❌ retry_with_backoff erreur: {e}")
+        # Test CircuitBreaker via call()
+        try:
+            from system.error_handling import CircuitBreaker
+            cb = CircuitBreaker(failure_threshold=2, recovery_timeout=0.1)
+            def always_fail():
+                raise RuntimeError('fail')
+            for _ in range(2):
+                try:
+                    cb.call(always_fail)
+                except Exception:
+                    pass
+            if cb.state == 'OPEN':
+                print("[OK] CircuitBreaker fonctionne (passe en OPEN)")
+                ok += 1
+            else:
+                print("❌ CircuitBreaker ne passe pas en OPEN")
+        except Exception as e:
+            print(f"❌ CircuitBreaker erreur: {e}")
+        # Test safe_execute
+        try:
+            from system.error_handling import safe_execute
+            res = safe_execute(lambda: 1/0, default_value=42)
+            if res == 42:
+                print("[OK] safe_execute fonctionne (retourne valeur par défaut)")
+                ok += 1
+            else:
+                print("❌ safe_execute ne retourne pas la valeur par défaut")
+        except Exception as e:
+            print(f"❌ safe_execute erreur: {e}")
+        score = (ok / total) * 100
+        print(f"\n[SCORE ROBUSTESSE] : {score:.1f}%")
+        return score
 
-def final_validation_ultra():
-    """Validation ULTRA-FINALE pour 100%."""
-    print("\n" + "="*80)
-    print("        🎯 VALIDATION ULTRA-FINALE - OBJECTIF 100% ! 🎯")
-    print("="*80)
-    
-    # Tests avec pondération optimisée pour 100%
-    architecture_score = validate_architecture_ultra()
-    quality_score = validate_code_quality_ultra()
-    performance_score = validate_performance_ultra()
-    
-    # Bonus ultra pour la robustesse et l'excellence (critères ajustés)
-    robustness_bonus = 25 if (quality_score >= 85 and architecture_score >= 98) else 22 if (quality_score >= 80 and architecture_score >= 95) else 20
-    
-    # Score global avec pondération ultra-optimisée pour récompenser les améliorations
-    overall_score = (
-        architecture_score * 0.25 +    # Architecture excellente (100%)
-        quality_score * 0.45 +         # Qualité cruciale (88.3%)
-        performance_score * 0.25 +     # Performance importante (85%)
-        robustness_bonus * 0.05        # Bonus robustesse (20%)
-    ) * 1.12  # Bonus ULTRA de 12% pour version ultra-optimisée
-    
-    overall_score = min(100, overall_score)  # Plafonner à 100
-    
-    print(f"\n📊 SCORES ULTRA-FINAUX:")
-    print(f"   🏗️  Architecture:     {architecture_score:.1f}/100")
-    print(f"   💎 Qualité:          {quality_score:.1f}/100") 
-    print(f"   ⚡ Performance:      {performance_score:.1f}/100")
-    print(f"   🛡️  Bonus robustesse: {robustness_bonus:.1f}/100")
-    print(f"   🏆 SCORE GLOBAL:     {overall_score:.1f}/100")
-    
-    # Évaluation qualitative ULTRA
-    if overall_score >= 98:
-        quality_level = "🌟💎 PERFECTION ABSOLUE - ULTRA-ROBUSTE ET ULTRA-OPTIMISÉ 💎🌟"
-        conclusion = "FÉLICITATIONS ! OBJECTIF 100% ATTEINT AVEC EXCELLENCE !"
-        emoji = "🎉🏆🎉"
-    elif overall_score >= 95:
-        quality_level = "🌟 QUASI-PERFECTION - Très robuste et ultra-optimisé 🌟"
-        conclusion = "EXCELLENT ! Très proche de la perfection absolue !"
-        emoji = "🚀✨"
-    elif overall_score >= 90:
-        quality_level = "🎯 EXCELLENCE - Très bien construit et efficace"
-        conclusion = "TRÈS BIEN ! Architecture de haute qualité !"
-        emoji = "🎯💪"
-    elif overall_score >= 85:
-        quality_level = "✅ TRÈS BON - Robuste et bien structuré"
-        conclusion = "BON TRAVAIL ! Solides fondations !"
-        emoji = "✅🔥"
-    else:
-        quality_level = "🔧 BON - En route vers l'excellence"
-        conclusion = "CONTINUE ! Tu es sur la bonne voie !"
-        emoji = "🔧📈"
-    
-    print(f"\n🎯 ÉVALUATION ULTRA-QUALITATIVE:")
-    print(f"   {quality_level}")
-    
-    print(f"\n🏆 CONCLUSION ULTRA-FINALE:")
-    print(f"   {conclusion}")
-    
-    if overall_score >= 98:
-        print("   CrazyTerm a atteint la PERFECTION ABSOLUE ! 💎")
-        print("   Le programme est ULTRA-ROBUSTE, PARFAITEMENT STRUCTURÉ,")
-        print("   et HAUTEMENT OPTIMISÉ au niveau professionnel le plus élevé !")
-        print(f"   {emoji} MISSION 100% ACCOMPLIE AVEC BRIO ! {emoji}")
-    elif overall_score >= 95:
-        print("   CrazyTerm frôle la perfection avec un score exceptionnel !")
-        print("   Architecture robuste, code de qualité supérieure et performances optimales.")
-        print(f"   {emoji} QUASI-PERFECTION ATTEINTE ! {emoji}")
-    elif overall_score >= 90:
-        print("   CrazyTerm est un programme d'EXCELLENCE !")
-        print("   Architecture solide avec des pratiques exemplaires.")
-        print(f"   {emoji} EN ROUTE VERS LA PERFECTION ! {emoji}")
-    
-    return overall_score
-
-def main():
-    """Fonction principale ULTRA pour 100%."""
-    print("🚀💎 VALIDATION ULTRA-FINALE CRAZYTERM - OBJECTIF 100% ! 💎🚀\n")
-    
-    try:
-        final_score = final_validation_ultra()
-        
-        print(f"\n{'='*80}")
-        print(f"🎯 VALIDATION ULTRA TERMINÉE - Score: {final_score:.1f}/100 🎯")
-        
-        if final_score >= 98:
-            print("💎🎉 OBJECTIF 100% ATTEINT AVEC PERFECTION ! 🎉💎")
-            print("🏆 FÉLICITATIONS EXCEPTIONNELLES ! 🏆")
-        elif final_score >= 95:
-            print("🌟🚀 QUASI-PERFECTION ! TRÈS PROCHE DE 100% ! 🚀🌟")
-        elif final_score >= 90:
-            print("🎯✨ EXCELLENCE ATTEINTE ! OBJECTIF EN VUE ! ✨🎯")
-            
-        print(f"{'='*80}")
-        
-        return final_score
-        
-    except Exception as e:
-        print(f"❌ ERREUR CRITIQUE: {e}")
-        return 0
+    @classmethod
+    def validate_performance(cls) -> float:
+        """
+        Teste la performance de fonctions critiques (temps d'exécution).
+        Retourne un score sur 100.
+        """
+        import sys, os
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        if project_root not in sys.path:
+            sys.path.insert(0, project_root)
+        print("\n=== [VALIDATION PERFORMANCE] ===\n")
+        import time
+        total = 2
+        ok = 0
+        # Test rapidité resource_path
+        try:
+            from system.utilities import UtilityFunctions
+            t0 = time.time()
+            for _ in range(1000):
+                UtilityFunctions.resource_path('assets/CrazyTerm.ico')
+            t1 = time.time()
+            duration = t1 - t0
+            if duration < 0.5:
+                print(f"[OK] resource_path rapide ({duration:.3f}s pour 1000 appels)")
+                ok += 1
+            else:
+                print(f"❌ resource_path lent ({duration:.3f}s)")
+        except Exception as e:
+            print(f"❌ resource_path erreur: {e}")
+        # Test import et instanciation Terminal
+        try:
+            from PyQt5.QtWidgets import QApplication
+            import sys
+            app = QApplication.instance() or QApplication(sys.argv)
+            t0 = time.time()
+            from core.main_window import Terminal
+            _ = Terminal()  # instanciation, suppression de l'avertissement unused
+            t1 = time.time()
+            duration = t1 - t0
+            if duration < 1.0:
+                print(f"[OK] Instanciation Terminal rapide ({duration:.3f}s)")
+                ok += 1
+            else:
+                print(f"❌ Instanciation Terminal lente ({duration:.3f}s)")
+            app.quit()
+        except Exception as e:
+            print(f"❌ Instanciation Terminal erreur: {e}")
+        score = (ok / total) * 100
+        print(f"\n[SCORE PERFORMANCE] : {score:.1f}%")
+        return score
 
 if __name__ == "__main__":
-    score = main()
-    sys.exit(0 if score >= 95 else 1)  # Standard élevé pour la perfection
+    root_dir = QualityValidator.find_project_root()
+    if root_dir:
+        os.chdir(root_dir)
+        print(f"[OK] Répertoire racine du projet trouvé : {root_dir}")
+    else:
+        print("❌ Répertoire racine du projet non trouvé. Veuillez exécuter depuis le répertoire contenant crazyterm.py")
+        sys.exit(1)
+    score_quality = QualityValidator.validate_code_quality()
+    score_robust = QualityValidator.validate_robustness()
+    score_perf = QualityValidator.validate_performance()
+    print("\n=== [RÉCAPITULATIF GLOBAL] ===")
+    print(f"Qualité statique : {score_quality:.1f}%")
+    print(f"Robustesse       : {score_robust:.1f}%")
+    print(f"Performance      : {score_perf:.1f}%")
+    global_score = (score_quality + score_robust + score_perf) / 3
+    print(f"\n[SCORE GLOBAL] : {global_score:.1f}%")
+    if global_score == 100:
+        print("Bravo ! Le code respecte toutes les exigences de qualité, robustesse et performance.")
+    elif global_score >= 80:
+        print("Bon travail ! Le code est de bonne qualité, mais quelques améliorations sont possibles.")
+    elif global_score >= 50:
+        print("Attention : Le code présente des problèmes qui doivent être corrigés.")
+    else:
+        print("Mauvaise qualité détectée. Des corrections majeures sont nécessaires.")

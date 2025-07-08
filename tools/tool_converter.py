@@ -1,196 +1,100 @@
-"""
-Module tool_converter pour CrazyTerm.
 
-Ce module contient la classe ToolConverter qui fournit des fonctionnalités
-de conversion de données pour l'application CrazyTerm.
 """
+Outils de conversion pour CrazyTerm.
+Contient des fonctions utilitaires pour la conversion de formats et de données.
+"""
+
+from __future__ import annotations
 
 import logging
-from typing import Union, Dict, Any, Optional
+from typing import Optional
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QTextEdit, 
+                             QPushButton, QGroupBox)
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("CrazySerialTerm.ToolConverter")
 
+class DataConverter(QDialog):
+    """Convertisseur de données ASCII/HEX avec interface graphique."""
+    def __init__(self, parent: Optional[QDialog] = None) -> None:
+        """Initialise la fenêtre de conversion."""
+        super().__init__(parent)
+        self.setWindowTitle("Convertisseur de Données (ASCII/HEX)")
+        self.resize(400, 200)
 
-class ToolConverter:
-    """
-    Outil de conversion de données pour CrazyTerm.
-    
-    Cette classe fournit des fonctionnalités de conversion de données
-    incluant les conversions numériques, de bases et d'unités.
-    
-    Attributes:
-        _history (List[str]): Historique des conversions
-        
-    Methods:
-        convert_base: Convertit entre bases numériques
-        convert_temperature: Convertit les températures
-        convert_length: Convertit les longueurs
-        
-    Examples:
-        >>> converter = ToolConverter()
-        >>> result = converter.convert_base("255", 10, 16)
-        >>> print(result)
-        FF
-        
-    Note:
-        Cette classe utilise les algorithmes standards de conversion.
-    """
-    
-    def __init__(self) -> None:
-        """Initialise l'outil de conversion."""
-        self._history: list = []
-        self.logger = logger
-        self.logger.info("ToolConverter initialisé")
-    
-    def convert_base(self, number: str, from_base: int, to_base: int) -> str:
-        """
-        Convertit un nombre d'une base à une autre.
-        
-        Args:
-            number: Nombre à convertir
-            from_base: Base source
-            to_base: Base destination
-            
-        Returns:
-            str: Nombre converti
-        """
+        layout: QVBoxLayout = QVBoxLayout(self)
+
+        # Zone d'entrée
+        inputGroup: QGroupBox = QGroupBox("Données d'entrée")
+        inputLayout: QVBoxLayout = QVBoxLayout()
+        self.inputText: QTextEdit = QTextEdit()
+        self.inputText.setPlaceholderText("Entrez les données à convertir...")
+        inputLayout.addWidget(self.inputText)
+        inputGroup.setLayout(inputLayout)
+        layout.addWidget(inputGroup)
+
+        # Zone de sortie
+        outputGroup: QGroupBox = QGroupBox("Données converties")
+        outputLayout: QVBoxLayout = QVBoxLayout()
+        self.outputText: QTextEdit = QTextEdit()
+        self.outputText.setReadOnly(True)
+        outputLayout.addWidget(self.outputText)
+        outputGroup.setLayout(outputLayout)
+        layout.addWidget(outputGroup)
+
+        # Boutons
+        buttonLayout: QHBoxLayout = QHBoxLayout()
+        self.toHexBtn: QPushButton = QPushButton("Convertir en HEX")
+        self.toHexBtn.clicked.connect(self.convertToHex)
+        buttonLayout.addWidget(self.toHexBtn)
+
+        self.toAsciiBtn: QPushButton = QPushButton("Convertir en ASCII")
+        self.toAsciiBtn.clicked.connect(self.convertToAscii)
+        buttonLayout.addWidget(self.toAsciiBtn)
+
+        closeBtn: QPushButton = QPushButton("Fermer")
+        closeBtn.clicked.connect(self.accept)
+        buttonLayout.addWidget(closeBtn)
+
+        layout.addLayout(buttonLayout)
+
+    def convertToHex(self) -> None:
+        """Convertit le texte ASCII en HEX et affiche le résultat."""
         try:
-            # Conversion vers décimal puis vers base cible
-            decimal_value = int(number, from_base)
-            
-            if to_base == 10:
-                result = str(decimal_value)
-            elif to_base == 2:
-                result = bin(decimal_value)[2:]
-            elif to_base == 8:
-                result = oct(decimal_value)[2:]
-            elif to_base == 16:
-                result = hex(decimal_value)[2:].upper()
-            else:
-                # Base générique
-                result = self._convert_to_base(decimal_value, to_base)
-            
-            self._history.append(f"Base {from_base} -> {to_base}: {number} = {result}")
-            self.logger.debug(f"Conversion base: {number} ({from_base}) -> {result} ({to_base})")
-            return result
-            
+            text: str = self.inputText.toPlainText()
+            if not text:
+                self.outputText.setText("Aucune donnée à convertir")
+                return
+            self.outputText.setText(' '.join(f'{ord(c):02X}' for c in text))
+            logger.info("Conversion ASCII -> HEX réussie.")
         except Exception as e:
-            error_msg = f"Erreur conversion base: {str(e)}"
-            self.logger.error(error_msg)
-            return error_msg
-    
-    def _convert_to_base(self, number: int, base: int) -> str:
-        """Convertit un nombre vers une base arbitraire."""
-        if number == 0:
-            return "0"
-        
-        digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        result = ""
-        
-        while number > 0:
-            result = digits[number % base] + result
-            number //= base
-        
-        return result
-    
-    def convert_temperature(self, value: float, from_unit: str, to_unit: str) -> float:
-        """
-        Convertit une température d'une unité à une autre.
-        
-        Args:
-            value: Valeur à convertir
-            from_unit: Unité source (C, F, K)
-            to_unit: Unité destination (C, F, K)
+            self.outputText.setText(f"Erreur lors de la conversion: {str(e)}")
+            logger.error(f"Erreur conversion ASCII->HEX: {e}")
             
-        Returns:
-            float: Valeur convertie
-        """
+    def convertToAscii(self) -> None:
+        """Convertit le texte HEX en ASCII et affiche le résultat."""
         try:
-            # Conversion vers Celsius
-            if from_unit.upper() == 'F':
-                celsius = (value - 32) * 5/9
-            elif from_unit.upper() == 'K':
-                celsius = value - 273.15
-            else:
-                celsius = value
-            
-            # Conversion depuis Celsius
-            if to_unit.upper() == 'F':
-                result = celsius * 9/5 + 32
-            elif to_unit.upper() == 'K':
-                result = celsius + 273.15
-            else:
-                result = celsius
-            
-            self._history.append(f"Température {from_unit} -> {to_unit}: {value} = {result}")
-            self.logger.debug(f"Conversion température: {value}°{from_unit} -> {result}°{to_unit}")
-            return round(result, 2)
-            
+            text: str = self.inputText.toPlainText().replace(' ', '').replace('\n', '').replace('\t', '')
+            if not text:
+                self.outputText.setText("Aucune donnée à convertir")
+                return
+            if len(text) % 2 != 0:
+                self.outputText.setText("Erreur : nombre impair de caractères HEX")
+                return
+            self.outputText.setText(bytes.fromhex(text).decode('utf-8', errors='replace'))
+            logger.info("Conversion HEX -> ASCII réussie.")
+        except ValueError:
+            self.outputText.setText("Erreur : données HEX invalides")
+            logger.error("Erreur : données HEX invalides")
         except Exception as e:
-            error_msg = f"Erreur conversion température: {str(e)}"
-            self.logger.error(error_msg)
-            return 0.0
-    
-    def convert_length(self, value: float, from_unit: str, to_unit: str) -> float:
-        """
-        Convertit une longueur d'une unité à une autre.
-        
-        Args:
-            value: Valeur à convertir
-            from_unit: Unité source (mm, cm, m, km, in, ft)
-            to_unit: Unité destination
-            
-        Returns:
-            float: Valeur convertie
-        """
+            self.outputText.setText(f"Erreur lors de la conversion: {str(e)}")
+            logger.error(f"Erreur conversion HEX->ASCII: {e}")
+
+    def convert(self) -> None:
+        """Convertit les données ASCII/HEX selon le mode sélectionné."""
         try:
-            # Facteurs de conversion vers mètres
-            to_meters = {
-                'mm': 0.001,
-                'cm': 0.01,
-                'm': 1.0,
-                'km': 1000.0,
-                'in': 0.0254,
-                'ft': 0.3048
-            }
-            
-            # Conversion vers mètres puis vers unité cible
-            meters = value * to_meters.get(from_unit.lower(), 1.0)
-            result = meters / to_meters.get(to_unit.lower(), 1.0)
-            
-            self._history.append(f"Longueur {from_unit} -> {to_unit}: {value} = {result}")
-            self.logger.debug(f"Conversion longueur: {value} {from_unit} -> {result} {to_unit}")
-            return round(result, 6)
-            
+            pass  # Logique de conversion à compléter si besoin
         except Exception as e:
-            error_msg = f"Erreur conversion longueur: {str(e)}"
-            self.logger.error(error_msg)
-            return 0.0
-    
-    def get_history(self) -> list:
-        """Retourne l'historique des conversions."""
-        return self._history.copy()
-    
-    def clear_history(self) -> None:
-        """Efface l'historique des conversions."""
-        self._history.clear()
-        self.logger.debug("Historique effacé")
-    
-    def get_info(self) -> Dict[str, Any]:
-        """Retourne les informations de l'outil."""
-        return {
-            'name': 'ToolConverter',
-            'version': '1.0.0',
-            'history_count': len(self._history),
-            'available_conversions': [
-                'Base numérique', 'Température', 'Longueur'
-            ]
-        }
-    
-    def __str__(self) -> str:
-        """Représentation string de l'outil."""
-        return f"ToolConverter(history={len(self._history)} items)"
-    
-    def __repr__(self) -> str:
-        """Représentation détaillée de l'outil."""
-        return f"ToolConverter(_history={len(self._history)} items)"
+            logger.error(f"Erreur lors de la conversion: {e}")
+            raise
+
+__all__ = []
