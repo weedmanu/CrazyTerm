@@ -21,7 +21,6 @@ License: MIT
 import sys
 import os
 import logging
-from typing import Optional
 from PyQt5.QtWidgets import QApplication, QStyleFactory
 from PyQt5.QtGui import QIcon, QFont
 

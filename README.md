@@ -1,5 +1,7 @@
 # CrazyTerm
 
+![CI](https://github.com/weedmanu/CrazyTerm/actions/workflows/ci.yml/badge.svg)
+
 Terminal série avancé avec interface graphique PyQt5.
 
 ## 💡 Démarrage rapide (Utilisateur final)
