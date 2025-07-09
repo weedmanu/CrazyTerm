@@ -1,4 +1,4 @@
-## ![Logo](assets/CrazyTerm.ico) CrazyTerm
+# ![Logo](assets/CrazyTerm.ico) CrazyTerm
 
 Terminal série avancé avec interface graphique PyQt5.
 
