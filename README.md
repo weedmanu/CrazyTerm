@@ -1,4 +1,7 @@
-# CrazyTerm ![Logo](assets/CrazyTerm.ico)
+<p align="center">
+  <img src="assets/CrazyTerm.ico" alt="Logo CrazyTerm" height="48" style="vertical-align: middle;">
+  <span style="font-size:2.2em; vertical-align: middle;"><b>CrazyTerm</b></span>
+</p>
 
 Terminal série avancé avec interface graphique PyQt5.
 
