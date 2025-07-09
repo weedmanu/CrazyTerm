@@ -1,5 +1,5 @@
 {
-    "theme": "hacker",
+    "theme": "sombre",
     "send_group_enabled": true,
     "display_group_enabled": false,
     "serial_group_enabled": false,
@@ -53,11 +53,11 @@
             "enabled": false,
             "path": "serial_terminal.log"
         },
-        "settings_tab_visible": true
+        "settings_tab_visible": false
     },
     "window_geometry": [
-        100,
-        100,
+        98,
+        24,
         1200,
         800
     ],

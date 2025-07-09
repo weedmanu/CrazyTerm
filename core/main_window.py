@@ -27,7 +27,7 @@ from interface.interface_components import (ConnectionPanel, InputPanel, Advance
 from core.config_manager import SettingsManager
 from interface.theme_manager import ThemeManager
 from tools.tool_checksum import ChecksumCalculator
-from tools.tool_converter import DataConverter
+from tools.tool_converter import ToolConverter
 from system.memory_optimizer import get_ultra_memory_manager
 from core.terminal_buffer import TerminalBufferManager
 from core.tool_manager import ToolManager

@@ -4,8 +4,6 @@ import importlib
 import glob
 import logging
 from typing import Dict, Any, Optional, List
-from tools.tool_checksum import ChecksumCalculator
-from tools.tool_converter import DataConverter
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +16,6 @@ class ToolManager:
         self.tools: Dict[str, Any] = {}
         self.active_tools: List[str] = []
         self.parent = parent
-        self.checksum_calculator = ChecksumCalculator(parent)
-        self.data_converter = DataConverter(parent)
         self._load_dynamic_tools()
         
         logger.info("ToolManager initialisé (chargement dynamique)")
@@ -48,7 +44,12 @@ class ToolManager:
                             tool_class = obj
                             break
                 if tool_class:
-                    instance = tool_class(self.parent) if self.parent else tool_class()
+                    # Import ici pour éviter les cycles
+                    from PyQt5.QtWidgets import QDialog
+                    if issubclass(tool_class, QDialog):
+                        instance = tool_class(self.parent) if self.parent else tool_class()
+                    else:
+                        instance = tool_class()
                     self.register_tool(module_name, instance)
                     logger.info(f"Outil dynamique chargé: {module_name}")
             except Exception as e:
@@ -83,14 +84,6 @@ class ToolManager:
     def get_active_tools(self) -> List[str]:
         """Retourne la liste des outils actifs."""
         return self.active_tools.copy()
-    
-    def show_checksum_calculator(self):
-        """Affiche le calculateur de somme de contrôle."""
-        self.checksum_calculator.show()
-
-    def show_data_converter(self):
-        """Affiche le convertisseur de données."""
-        self.data_converter.show()
     
     def __str__(self) -> str:
         """Retourne une représentation string du ToolManager."""

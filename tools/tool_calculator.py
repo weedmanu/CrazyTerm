@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGridLayout, QPushButton, QLin
 from PyQt5.QtCore import Qt
 import math
 
-class CalculatorDialog(QDialog):
+class ToolCalculator(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Calculatrice avancée")
@@ -85,4 +85,4 @@ class CalculatorDialog(QDialog):
         import re
         return re.sub(r'(\d+(?:\.\d+)?)%([\d(])', r'(\1/100*\2)', expr)
 
-__all__ = ["CalculatorDialog"]
+__all__ = ["ToolCalculator"]
