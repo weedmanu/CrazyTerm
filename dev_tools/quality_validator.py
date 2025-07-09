@@ -111,7 +111,10 @@ class QualityValidator:
                 'system/error_handling.py', 'system/custom_exceptions.py',
                 'tools/tool_converter.py', 'tools/tool_checksum.py',
                 'interface/interface_components.py', 'interface/theme_manager.py',
-                'communication/serial_communication.py'
+                'communication/serial_communication.py',
+                # Ajout des outils dev_tools
+                'dev_tools/pre_build_check.py', 'dev_tools/venv_reset.py', 'dev_tools/quality_validator.py',
+                'dev_tools/purge_project.py', 'dev_tools/pre_release_check.py', 'dev_tools/install_crazyterm.py'
             ],
             'logging': [
                 'core/main_window.py', 'core/config_manager.py',
@@ -119,7 +122,9 @@ class QualityValidator:
                 'system/error_handling.py', 'system/custom_exceptions.py',
                 'tools/tool_converter.py', 'tools/tool_checksum.py',
                 'interface/interface_components.py', 'interface/theme_manager.py',
-                'communication/serial_communication.py'
+                'communication/serial_communication.py',
+                'dev_tools/pre_build_check.py', 'dev_tools/venv_reset.py', 'dev_tools/quality_validator.py',
+                'dev_tools/purge_project.py', 'dev_tools/pre_release_check.py', 'dev_tools/install_crazyterm.py'
             ],
             'type_hints': [
                 'core/main_window.py', 'core/config_manager.py',
@@ -127,7 +132,9 @@ class QualityValidator:
                 'system/error_handling.py', 'system/custom_exceptions.py',
                 'tools/tool_converter.py', 'tools/tool_checksum.py',
                 'interface/interface_components.py', 'interface/theme_manager.py',
-                'communication/serial_communication.py'
+                'communication/serial_communication.py',
+                'dev_tools/pre_build_check.py', 'dev_tools/venv_reset.py', 'dev_tools/quality_validator.py',
+                'dev_tools/purge_project.py', 'dev_tools/pre_release_check.py', 'dev_tools/install_crazyterm.py'
             ],
             'documentation': [
                 'core/main_window.py', 'core/config_manager.py',
@@ -135,13 +142,17 @@ class QualityValidator:
                 'system/error_handling.py', 'system/custom_exceptions.py',
                 'tools/tool_converter.py', 'tools/tool_checksum.py',
                 'interface/interface_components.py', 'interface/theme_manager.py',
-                'communication/serial_communication.py'
+                'communication/serial_communication.py',
+                'dev_tools/pre_build_check.py', 'dev_tools/venv_reset.py', 'dev_tools/quality_validator.py',
+                'dev_tools/purge_project.py', 'dev_tools/pre_release_check.py', 'dev_tools/install_crazyterm.py'
             ],
             'class_structure': [
                 'core/main_window.py', 'core/config_manager.py',
                 'system/memory_optimizer.py', 'system/utilities.py',
                 'tools/tool_converter.py', 'tools/tool_checksum.py',
-                'interface/interface_components.py', 'interface/theme_manager.py', 'communication/serial_communication.py'
+                'interface/interface_components.py', 'interface/theme_manager.py', 'communication/serial_communication.py',
+                'dev_tools/pre_build_check.py', 'dev_tools/venv_reset.py', 'dev_tools/quality_validator.py',
+                'dev_tools/purge_project.py', 'dev_tools/pre_release_check.py', 'dev_tools/install_crazyterm.py'
             ],
             'imports_optimization': [
                 'core/main_window.py', 'core/config_manager.py',
@@ -149,13 +160,17 @@ class QualityValidator:
                 'system/error_handling.py', 'system/custom_exceptions.py',
                 'tools/tool_converter.py', 'tools/tool_checksum.py',
                 'interface/interface_components.py', 'interface/theme_manager.py',
-                'communication/serial_communication.py'
+                'communication/serial_communication.py',
+                'dev_tools/pre_build_check.py', 'dev_tools/venv_reset.py', 'dev_tools/quality_validator.py',
+                'dev_tools/purge_project.py', 'dev_tools/pre_release_check.py', 'dev_tools/install_crazyterm.py'
             ],
             'code_organization': [
                 'core/main_window.py', 'core/config_manager.py',
                 'system/memory_optimizer.py', 'system/utilities.py',
                 'tools/tool_converter.py', 'tools/tool_checksum.py',
-                'interface/interface_components.py', 'interface/theme_manager.py', 'communication/serial_communication.py'
+                'interface/interface_components.py', 'interface/theme_manager.py', 'communication/serial_communication.py',
+                'dev_tools/pre_build_check.py', 'dev_tools/venv_reset.py', 'dev_tools/quality_validator.py',
+                'dev_tools/purge_project.py', 'dev_tools/pre_release_check.py', 'dev_tools/install_crazyterm.py'
             ],
         }
 

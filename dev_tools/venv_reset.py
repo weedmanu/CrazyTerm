@@ -24,14 +24,15 @@ import sys
 import platform
 import stat
 import ctypes
+from typing import Callable, Any
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 VENV_DIR = os.path.join(ROOT, '.venv')
-REQUIREMENTS = os.path.join(ROOT, 'requirements.txt')
+REQUIREMENTS = os.path.join(ROOT, 'dev_tools', 'requirements.txt')
 
 # Utilitaires
 
-def on_rm_error(func, path, exc_info):
+def on_rm_error(func: Callable[[str], Any], path: str, exc_info: Any) -> None:
     try:
         os.chmod(path, stat.S_IWRITE)
         func(path)

@@ -137,7 +137,7 @@ def main() -> None:
     # 6. Installation des dépendances à partir de requirements.txt
     print("\n{:^60}\n".format("INSTALLATION DES DÉPENDANCES"))
     print("-"*60)
-    requirements_path: str = os.path.join(project_root, "requirements.txt")
+    requirements_path: str = os.path.join(project_root, "dev_tools", "requirements.txt")
     req_ok = True
     if os.path.exists(requirements_path):
         ok = check_command(

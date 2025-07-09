@@ -49,11 +49,11 @@ REM Activation du venv
 call %VENV_DIR%\Scripts\activate.bat
 echo.
 echo [INFO] --> Installation des dependances du projet : requirements.txt
-if exist requirements.txt (
-    echo Contenu de requirements.txt :
-    type requirements.txt
+if exist dev_tools\requirements.txt (
+    echo Contenu de dev_tools\requirements.txt :
+    type dev_tools\requirements.txt
     python -m pip install --upgrade pip
-    pip install -r requirements.txt
+    pip install -r dev_tools\requirements.txt
     echo [OK] requirements.txt installe.
 ) else (
     echo [WARN] Aucun requirements.txt trouve.
