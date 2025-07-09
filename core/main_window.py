@@ -1,9 +1,31 @@
-"""
-Fenêtre principale de CrazySerialTerm - Version Série Simple
-Ce module contient la classe principale de l'interface utilisateur série uniquement.
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-Classes :
-    Terminal : Fenêtre principale de l'application, interface graphique et gestion des événements série.
+"""
+Module : main_window.py
+
+Outil interne CrazyTerm : Fenêtre principale (non natif, chargé dynamiquement)
+
+Rôle :
+    Définit la fenêtre principale de CrazyTerm, l’interface graphique centrale et la gestion des événements
+    utilisateur et série. Orchestration de l’UI, des outils et de la communication série.
+
+Fonctionnalités principales :
+    - Interface graphique PyQt5 complète
+    - Gestion des événements série et utilisateur
+    - Intégration des outils et modules principaux
+    - Personnalisation, thèmes, et gestion des layouts
+
+Dépendances :
+    - PyQt5
+    - logging
+    - core, interface, tools, system
+
+Utilisation :
+    Ce module est le point d’entrée graphique de l’application CrazyTerm.
+
+Auteur :
+    Projet CrazyTerm (2025) Manu
 """
 
 from __future__ import annotations
@@ -366,6 +388,7 @@ class Terminal(QMainWindow):
             data (str): Données à envoyer.
             format_type (str): Format d'envoi ('text' ou 'hex').
         """
+        logger.info(f"[DEBUG] Slot send_data appelé avec data='{data}' format_type='{format_type}'")
         logger.info(f"[DEBUG] Slot send_data appelé avec data='{data}' format_type='{format_type}'")
         if not self.serial_manager.is_connected():
             self.append_text("[Système] Aucune connexion active\n", 'system')

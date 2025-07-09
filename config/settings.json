@@ -28,8 +28,8 @@
     },
     "advanced_settings": {
         "send_group_enabled": false,
-        "display_group_enabled": false,
-        "serial_group_enabled": false,
+        "display_group_enabled": true,
+        "serial_group_enabled": true,
         "send_settings": {
             "format": "ASCII",
             "eol": "NL+CR",
@@ -53,11 +53,11 @@
             "enabled": false,
             "path": "serial_terminal.log"
         },
-        "settings_tab_visible": false
+        "settings_tab_visible": true
     },
     "window_geometry": [
-        98,
-        24,
+        335,
+        156,
         1200,
         800
     ],

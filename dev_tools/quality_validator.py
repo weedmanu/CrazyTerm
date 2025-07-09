@@ -1,20 +1,45 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-Script de validation pour CrazyTerm - Version Simple et Efficace
+Module : quality_validator.py
 
-Ce script audite la qualité, l'architecture et la performance du projet CrazyTerm.
-Il applique des critères stricts sur chaque axe qualité (documentation, type hints, gestion d'erreur, etc.)
-L'objectif est d'obtenir 100% sur chaque critère, avec un reporting vertical et lisible des fichiers non conformes.
+Outil interne CrazyTerm : Validation qualité, robustesse et performance (natif, non outil externe)
 
-Usage :
+Rôle :
+    Analyse statique et dynamique de la qualité du code, de la robustesse et des performances du projet CrazyTerm.
+    Vérifie la conformité aux standards (docstrings, type hints, gestion d'erreur, logging, structure, etc.)
+    Génère un reporting détaillé et vertical pour chaque critère, avec score global.
+
+Fonctionnalités principales :
+    - Vérification de la documentation, des annotations de type, de la gestion d'erreur, du logging, etc.
+    - Analyse AST stricte de chaque module cible
+    - Vérification du header Python (shebang, encodage, ligne vide)
+    - Tests dynamiques de robustesse (retry, circuit breaker, safe_execute)
+    - Tests de performance sur fonctions critiques
+    - Affichage des scores détaillés et des fichiers non conformes
+
+Dépendances :
+    - Python standard (os, sys, ast, typing)
+
+Utilisation :
     python dev_tools/quality_validator.py
 
-Sortie :
-    Affiche les scores détaillés et la liste des fichiers à corriger pour chaque critère.
+Auteur :
+    Projet CrazyTerm (2025) Manu
 """
 
 import os
 import sys
+import subprocess
+
+# Patch pour forcer l'encodage UTF-8 sur la sortie standard si nécessaire
+if sys.stdout.encoding is not None and sys.stdout.encoding.lower() != 'utf-8':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except AttributeError:
+        pass  # Pour compatibilité Python <3.7
+
 from typing import Optional, List, Dict, Any
 import ast
 
@@ -38,9 +63,41 @@ class QualityValidator:
             current = parent
         return root
 
+    @staticmethod
+    def check_python_header(file_path: str) -> bool:
+        """
+        Vérifie que le fichier commence par le shebang, l'encodage et une ligne vide (tolère CR/LF).
+        """
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                lines = [f.readline() for _ in range(3)]
+            # Tolère \r, \n, \r\n comme ligne vide
+            if (lines[0].strip() == '#!/usr/bin/env python3' and
+                lines[1].strip() == '# -*- coding: utf-8 -*-' and
+                lines[2].strip() in ('', '\r', '\n', '\r\n')):
+                return True
+            return False
+        except Exception as e:
+            print(f"[ERREUR] Impossible de lire {file_path} : {e}")
+            return False
+
+    @classmethod
+    def validate_python_headers(cls, python_files: List[str]) -> Dict[str, Any]:
+        """
+        Vérifie la conformité du header de tous les fichiers Python métiers.
+        """
+        non_conformes: List[str] = []
+        for file_path in python_files:
+            if not cls.check_python_header(file_path):
+                non_conformes.append(file_path)
+        return {
+            'conformes': len(python_files) - len(non_conformes),
+            'non_conformes': non_conformes,
+            'total': len(python_files)
+        }
+
     @classmethod
     def validate_code_quality(cls) -> float:
-        print("\n=== [VALIDATION QUALITÉ DU CODE] ===\n")
         if not os.path.exists('crazyterm.py'):
             print("❌ Script non exécuté depuis le répertoire racine du projet")
             print("   Veuillez exécuter depuis le répertoire contenant crazyterm.py")
@@ -84,7 +141,7 @@ class QualityValidator:
                 'core/main_window.py', 'core/config_manager.py',
                 'system/memory_optimizer.py', 'system/utilities.py',
                 'tools/tool_converter.py', 'tools/tool_checksum.py',
-                'interface/interface_components.py', 'communication/serial_communication.py'
+                'interface/interface_components.py', 'interface/theme_manager.py', 'communication/serial_communication.py'
             ],
             'imports_optimization': [
                 'core/main_window.py', 'core/config_manager.py',
@@ -98,7 +155,7 @@ class QualityValidator:
                 'core/main_window.py', 'core/config_manager.py',
                 'system/memory_optimizer.py', 'system/utilities.py',
                 'tools/tool_converter.py', 'tools/tool_checksum.py',
-                'interface/interface_components.py', 'communication/serial_communication.py'
+                'interface/interface_components.py', 'interface/theme_manager.py', 'communication/serial_communication.py'
             ],
         }
 
@@ -107,12 +164,7 @@ class QualityValidator:
         for root, dirs, files in os.walk('.'):
             dirs[:] = [d for d in dirs if not d.startswith('.') and d != '__pycache__']
             for file in files:
-                if (file.endswith('.py') and 
-                    not file.startswith('test_') and 
-                    not file.startswith('validate_') and
-                    not file.startswith('check_') and
-                    not file.startswith('quality_') and
-                    file != '__init__.py'):
+                if file.endswith('.py'):
                     file_path = os.path.join(root, file)
                     python_files.append(file_path)
 
@@ -233,23 +285,39 @@ class QualityValidator:
                 except Exception as e:
                     results[metric]['non_conformes'].append(f"{rel_path_norm} (erreur: {e})")
 
+        # --- Vérification du header Python ---
+        header_result = cls.validate_python_headers(python_files)
+        header_non_conformes = set(os.path.normpath(f) for f in header_result['non_conformes'])
+        header_score = (len(python_files) - len(header_result['non_conformes'])) / len(python_files) * 100 if python_files else 0.0
+
         # --- Affichage des résultats détaillés ---
-        print("\n=== Résultats détaillés de la validation ===")
-        percs: List[float] = []
+        print("\n" + "="*60)
+        print("{:^60}".format("VALIDATION QUALITÉ DU CODE"))
+        print("="*60)
+        print("\n{:^60}\n".format("QUALITÉ"))
+        print("{:^60}".format(">>> Résultats détaillés de la validation <<<"))
+        print("-"*60)
+        # Ligne header
+        header_status = "✅" if not header_result['non_conformes'] else "❌"
+        print(f"{header_status} {'header'.ljust(20)} : {len(python_files) - len(header_result['non_conformes']):2d}/{len(python_files):2d} fichiers conformes ({header_score:5.1f}%)")
+        percs: List[float] = [header_score]
         for metric, data in results.items():
             total = data['total']
             conformes = data['conformes']
             non_conformes = data['non_conformes']
             score = (conformes / total) * 100 if total else 0.0
             percs.append(score)
-            print(f"[OK] {metric} : {conformes}/{total} fichiers conformes ({score:.1f}%)")
+            status = "✅" if not non_conformes else "❌"
+            print(f"{status} {metric.ljust(20)} : {conformes:2d}/{total:2d} fichiers conformes ({score:5.1f}%)")
             if non_conformes:
                 print("   Fichiers non conformes :")
                 for file in non_conformes:
                     print(f"    - {file}")
+        print("-"*60)
         # --- Score global ---
         global_score = sum(percs) / len(percs) if percs else 0.0
-        print(f"\n[SCORE GLOBAL QUALITÉ] : {global_score:.1f}%")
+        print(f"\n[SCORE GLOBAL QUALITÉ] : {global_score:.1f}%\n")
+
         return global_score
 
     @classmethod
@@ -259,13 +327,17 @@ class QualityValidator:
         Retourne un score sur 100.
         """
         import sys, os
+        import contextlib
+        import io
         project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         if project_root not in sys.path:
             sys.path.insert(0, project_root)
-        print("\n=== [VALIDATION ROBUSTESSE] ===\n")
-        score = 0
+        print("\n" + "="*60)
+        print("{:^60}".format("VALIDATION ROBUSTESSE"))
+        print("="*60)
         total = 3
         ok = 0
+        results = []
         # Test retry_with_backoff
         try:
             from system.error_handling import retry_with_backoff
@@ -274,48 +346,55 @@ class QualityValidator:
             def fail_func():
                 calls['count'] += 1
                 raise ValueError('fail')
-            try:
-                fail_func()
-            except ValueError:
-                pass
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                try:
+                    fail_func()
+                except ValueError:
+                    pass
             if calls['count'] == 3:
-                print("[OK] retry_with_backoff fonctionne (3 tentatives)")
+                results.append(("✅", "retry_with_backoff", "Fonctionne (3 tentatives)"))
                 ok += 1
             else:
-                print("❌ retry_with_backoff ne fonctionne pas")
-        except Exception as e:
-            print(f"❌ retry_with_backoff erreur: {e}")
+                results.append(("❌", "retry_with_backoff", "Échec"))
+        except Exception:
+            results.append(("❌", "retry_with_backoff", "Erreur"))
         # Test CircuitBreaker via call()
         try:
             from system.error_handling import CircuitBreaker
             cb = CircuitBreaker(failure_threshold=2, recovery_timeout=0.1)
             def always_fail():
                 raise RuntimeError('fail')
-            for _ in range(2):
-                try:
-                    cb.call(always_fail)
-                except Exception:
-                    pass
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                for _ in range(2):
+                    try:
+                        cb.call(always_fail)
+                    except Exception:
+                        pass
             if cb.state == 'OPEN':
-                print("[OK] CircuitBreaker fonctionne (passe en OPEN)")
+                results.append(("✅", "CircuitBreaker", "Passe en OPEN après 2 échecs"))
                 ok += 1
             else:
-                print("❌ CircuitBreaker ne passe pas en OPEN")
-        except Exception as e:
-            print(f"❌ CircuitBreaker erreur: {e}")
+                results.append(("❌", "CircuitBreaker", "Échec"))
+        except Exception:
+            results.append(("❌", "CircuitBreaker", "Erreur"))
         # Test safe_execute
         try:
             from system.error_handling import safe_execute
-            res = safe_execute(lambda: 1/0, default_value=42)
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                res = safe_execute(lambda: 1/0, default_value=42)
             if res == 42:
-                print("[OK] safe_execute fonctionne (retourne valeur par défaut)")
+                results.append(("✅", "safe_execute", "Retourne la valeur par défaut"))
                 ok += 1
             else:
-                print("❌ safe_execute ne retourne pas la valeur par défaut")
-        except Exception as e:
-            print(f"❌ safe_execute erreur: {e}")
+                results.append(("❌", "safe_execute", "Échec"))
+        except Exception:
+            results.append(("❌", "safe_execute", "Erreur"))
+        # Affichage formaté
+        for status, label, msg in results:
+            print(f"{status} {label.ljust(20)} : {msg}")
+        print("-"*60)
         score = (ok / total) * 100
-        print(f"\n[SCORE ROBUSTESSE] : {score:.1f}%")
+        print(f"\n[SCORE ROBUSTESSE] : {score:.1f}%\n")
         return score
 
     @classmethod
@@ -328,7 +407,9 @@ class QualityValidator:
         project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         if project_root not in sys.path:
             sys.path.insert(0, project_root)
-        print("\n=== [VALIDATION PERFORMANCE] ===\n")
+        print("\n" + "="*60)
+        print("{:^60}".format("VALIDATION PERFORMANCE"))
+        print("="*60)
         import time
         total = 2
         ok = 0
@@ -341,7 +422,7 @@ class QualityValidator:
             t1 = time.time()
             duration = t1 - t0
             if duration < 0.5:
-                print(f"[OK] resource_path rapide ({duration:.3f}s pour 1000 appels)")
+                print(f"✅ resource_path rapide ({duration:.3f}s pour 1000 appels)")
                 ok += 1
             else:
                 print(f"❌ resource_path lent ({duration:.3f}s)")
@@ -358,7 +439,7 @@ class QualityValidator:
             t1 = time.time()
             duration = t1 - t0
             if duration < 1.0:
-                print(f"[OK] Instanciation Terminal rapide ({duration:.3f}s)")
+                print(f"✅ Instanciation Terminal rapide ({duration:.3f}s)")
                 ok += 1
             else:
                 print(f"❌ Instanciation Terminal lente ({duration:.3f}s)")
@@ -366,7 +447,8 @@ class QualityValidator:
         except Exception as e:
             print(f"❌ Instanciation Terminal erreur: {e}")
         score = (ok / total) * 100
-        print(f"\n[SCORE PERFORMANCE] : {score:.1f}%")
+        print("-"*60)
+        print(f"\n[SCORE PERFORMANCE] : {score:.1f}%\n")
         return score
 
 if __name__ == "__main__":
@@ -377,20 +459,68 @@ if __name__ == "__main__":
     else:
         print("❌ Répertoire racine du projet non trouvé. Veuillez exécuter depuis le répertoire contenant crazyterm.py")
         sys.exit(1)
+    # On récupère aussi le mapping file_issues pour le rapport exhaustif final
+    # --- Exécution des validations ---
     score_quality = QualityValidator.validate_code_quality()
     score_robust = QualityValidator.validate_robustness()
     score_perf = QualityValidator.validate_performance()
-    print("\n=== [RÉCAPITULATIF GLOBAL] ===")
-    print(f"Qualité statique : {score_quality:.1f}%")
-    print(f"Robustesse       : {score_robust:.1f}%")
-    print(f"Performance      : {score_perf:.1f}%")
+    # --- Récapitulatif global harmonisé ---
+    print("\n" + "="*60)
+    print("{:^60}".format("RÉCAPITULATIF GLOBAL"))
+    print("="*60)
+    print(f"{'Qualité statique'.ljust(20)} : {score_quality:5.1f}%")
+    print(f"{'Robustesse'.ljust(20)} : {score_robust:5.1f}%")
+    print(f"{'Performance'.ljust(20)} : {score_perf:5.1f}%")
+    print("-"*60)
     global_score = (score_quality + score_robust + score_perf) / 3
-    print(f"\n[SCORE GLOBAL] : {global_score:.1f}%")
+    print(f"{'SCORE GLOBAL'.ljust(20)} : {global_score:5.1f}%\n")
     if global_score == 100:
-        print("Bravo ! Le code respecte toutes les exigences de qualité, robustesse et performance.")
+        print("🎉 Bravo ! Le code respecte toutes les exigences de qualité, robustesse et performance. 🎉")
     elif global_score >= 80:
-        print("Bon travail ! Le code est de bonne qualité, mais quelques améliorations sont possibles.")
+        print("👍 Bon travail ! Le code est de bonne qualité, mais quelques améliorations sont possibles.")
     elif global_score >= 50:
-        print("Attention : Le code présente des problèmes qui doivent être corrigés.")
+        print("⚠️  Attention : Le code présente des problèmes qui doivent être corrigés.")
     else:
-        print("Mauvaise qualité détectée. Des corrections majeures sont nécessaires.")
+        print("❌ Mauvaise qualité détectée. Des corrections majeures sont nécessaires.")
+
+    # --- Rapport exhaustif enrichi harmonisé ---
+    print("\n" + "="*60)
+    print("{:^60}".format("RAPPORT EXHAUSTIF PAR FICHIER"))
+    print("="*60)
+    # Collecte des fichiers Python
+    python_files: List[str] = []
+    for root, dirs, files in os.walk('.'):
+        dirs[:] = [d for d in dirs if not d.startswith('.') and d != '__pycache__']
+        for file in files:
+            if file.endswith('.py'):
+                file_path = os.path.join(root, file)
+                python_files.append(file_path)
+    # Vérification du header
+    header_result = QualityValidator.validate_python_headers(python_files)
+    header_non_conformes = set(os.path.normpath(f) for f in header_result['non_conformes'])
+    # Mapping fichier -> liste de problèmes qualité
+    from typing import Dict, List as TypingList
+    file_issues: Dict[str, TypingList[str]] = {os.path.normpath(f): [] for f in python_files}
+    for f in header_non_conformes:
+        file_issues[f].append('Header non conforme')
+    # --- Robustesse/performance : on marque KO global si score < 100 ---
+    robust_ko = score_robust < 100.0
+    perf_ko = score_perf < 100.0
+    # Affichage enrichi harmonisé
+    for f in sorted(file_issues):
+        rel_path = os.path.relpath(f)
+        tags: list[str] = []
+        if file_issues[f]:
+            tags.append('qualité')
+        if robust_ko:
+            tags.append('robustesse')
+        if perf_ko:
+            tags.append('performance')
+        if tags:
+            print(f"❌ [{','.join(tags)}] {rel_path}")
+            for pb in file_issues[f]:
+                print(f"     - {pb}")
+        else:
+            print(f"✅ {rel_path}")
+    print("-"*60)
+    print("\n{:^60}\n".format("FIN DU RAPPORT EXHAUSTIF"))

@@ -1,4 +1,24 @@
-﻿"""UI Manager Module pour CrazyTerm."""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Module : ui_manager.py
+
+Outil interne CrazyTerm : Gestionnaire d’interface utilisateur (non natif, chargé dynamiquement)
+
+Rôle :
+    Centralise la gestion des layouts, widgets et composants graphiques de l’interface utilisateur
+    de CrazyTerm, facilitant l’organisation et l’extension de l’UI.
+
+Fonctionnalités principales :
+    - Création et gestion de layouts PyQt5
+    - Suivi et gestion des widgets
+    - Intégration avec les composants graphiques principaux
+    - Journalisation des opérations UI
+
+Dépendances :
+    - PyQt5
+"""
 
 import logging
 from typing import Optional, Dict, Any

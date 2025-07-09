@@ -1,7 +1,33 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 """
-Module d'optimisation de la mémoire pour CrazyTerm.
-Contient des fonctions et classes pour améliorer la gestion mémoire.
+Module : memory_optimizer.py
+
+Outil interne CrazyTerm : Optimisation mémoire (non natif, chargé dynamiquement)
+
+Rôle :
+    Fournit des fonctions et classes pour améliorer la gestion mémoire, optimiser l’utilisation des ressources
+    et prévenir les fuites dans l’application CrazyTerm.
+
+Fonctionnalités principales :
+    - Pool d’objets réutilisables
+    - Nettoyage automatique via garbage collector
+    - Surveillance mémoire et outils de diagnostic
+    - Intégration avec les composants PyQt5
+
+Dépendances :
+    - gc
+    - weakref
+    - threading
+    - PyQt5
+    - logging
+
+Utilisation :
+    Ce module est utilisé par les composants cœur et l’interface pour garantir la stabilité mémoire.
+
+Auteur :
+    Projet CrazyTerm (2025) Manu
 """
 
 

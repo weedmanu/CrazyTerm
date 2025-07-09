@@ -1,3 +1,33 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Module : terminal_buffer.py
+
+Outil interne CrazyTerm : Buffer terminal (non natif, chargé dynamiquement)
+
+Rôle :
+    Gère le buffer d’affichage, la mémoire, l’historique et la gestion des couleurs du terminal
+    pour l’interface principale de CrazyTerm.
+
+Fonctionnalités principales :
+    - Buffer circulaire et historique des textes
+    - Gestion des couleurs et du formatage
+    - Optimisation mémoire et flush intelligent
+    - Intégration avec PyQt5
+
+Dépendances :
+    - PyQt5
+    - logging
+    - typing
+
+Utilisation :
+    Ce module est utilisé par la fenêtre principale pour l’affichage et la gestion du terminal.
+
+Auteur :
+    Projet CrazyTerm (2025) Manu
+"""
+
 import logging
 from typing import List, Any
 from PyQt5.QtGui import QTextCharFormat, QColor

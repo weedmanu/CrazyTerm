@@ -1,7 +1,27 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 """
-Définitions des exceptions personnalisées pour CrazyTerm.
-Permet de gérer des cas d'erreur spécifiques à l'application.
+Module : custom_exceptions.py
+
+Outil interne CrazyTerm : Exceptions personnalisées (non natif, chargé dynamiquement)
+
+Rôle :
+    Définit les exceptions spécifiques à CrazyTerm pour une gestion fine des erreurs et des cas particuliers.
+
+Fonctionnalités principales :
+    - Hiérarchie d’exceptions dédiée au projet
+    - Gestion des erreurs série et génériques
+    - Intégration avec le système de journalisation
+
+Dépendances :
+    - logging
+
+Utilisation :
+    Ce module est utilisé par tous les composants nécessitant une gestion d’erreur personnalisée.
+
+Auteur :
+    Projet CrazyTerm (2025) Manu
 """
 
 from __future__ import annotations

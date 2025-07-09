@@ -1,9 +1,44 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Module : serial_communication.py
+
+Outil interne CrazyTerm : Communication série (non natif, chargé dynamiquement)
+
+Rôle :
+    Gère l’envoi, la réception et la gestion avancée des données via les ports série pour CrazyTerm.
+    Fournit une abstraction robuste et multiplateforme pour la communication série, avec gestion
+    des erreurs, des threads et des signaux Qt.
+
+Fonctionnalités principales :
+    - Lecture/écriture asynchrone sur port série
+    - Gestion des erreurs et reconnexions automatiques
+    - Intégration avec PyQt5 (signaux, threads)
+    - Détection et gestion dynamique des ports
+    - Historique, logs et diagnostics
+
+Dépendances :
+    - pyserial
+    - PyQt5
+    - logging
+    - system.custom_exceptions
+    - system.error_handling
+
+Utilisation :
+    Ce module est utilisé par le cœur de l’application pour toutes les opérations de communication série,
+    et chargé dynamiquement par le gestionnaire de communication.
+
+Auteur :
+    Projet CrazyTerm (2025) Manu
+"""
+
+from __future__ import annotations
+
 """
 Module de communication série pour CrazyTerm.
 Gère l'envoi et la réception de données via les ports série.
 """
-
-from __future__ import annotations
 
 import serial
 import serial.tools.list_ports

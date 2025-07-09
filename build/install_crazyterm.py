@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
 Script d'installation autonome CrazyTerm (remplace install_crazyterm.bat)
 
@@ -10,6 +12,7 @@ Script d'installation autonome CrazyTerm (remplace install_crazyterm.bat)
 Usage :
     python build/install_crazyterm.py
 """
+
 import os
 import sys
 import subprocess

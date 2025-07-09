@@ -1,20 +1,50 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from __future__ import annotations
+
 """
-Calculatrice avancée style collégien pour CrazyTerm.
-Fonctions : +, -, ×, ÷, %, racine carrée, puissance, pi, parenthèses, effacer, clavier, etc.
+Module : tool_calculator.py
+
+Outil externe CrazyTerm : Calculatrice avancée (non natif, chargé dynamiquement)
+
+Rôle :
+    Fournit une interface graphique (PyQt5 QDialog) pour effectuer des calculs scientifiques et arithmétiques avancés
+    directement dans l'application CrazyTerm.
+
+Fonctionnalités principales :
+    - Opérations arithmétiques (+, -, ×, ÷, %, puissance, racine carrée)
+    - Gestion du clavier et des boutons
+    - Prise en charge de π, parenthèses, effacement, retour arrière
+    - Sécurité d’évaluation des expressions (aucun accès aux fonctions système)
+    - Interface utilisateur moderne et intuitive
+
+Dépendances :
+    - PyQt5
+    - math
+
+Utilisation :
+    Ce module est chargé dynamiquement par le gestionnaire d’outils de CrazyTerm.
+    Il fournit une interface utilisateur pour effectuer des calculs scientifiques simples et avancés.
+
+Auteur :
+    Projet CrazyTerm (2025) Manu
 """
 
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QGridLayout, QPushButton, QLineEdit
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QKeyEvent
 import math
+from typing import Optional, Any
 
 class ToolCalculator(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent: Optional[Any] = None) -> None:
         super().__init__(parent)
         self.setWindowTitle("Calculatrice avancée")
         self.setFixedSize(340, 400)
         self.init_ui()
 
-    def init_ui(self):
+    def init_ui(self) -> None:
         layout = QVBoxLayout(self)
         self.display = QLineEdit()
         self.display.setReadOnly(True)
@@ -33,11 +63,15 @@ class ToolCalculator(QDialog):
             for col, val in enumerate(row_vals):
                 btn = QPushButton(val)
                 btn.setFixedSize(50, 40)
-                btn.clicked.connect(lambda checked, v=val: self.on_button(v))
+                btn.clicked.connect(self._make_button_callback(val))
                 grid.addWidget(btn, row, col)
         layout.addLayout(grid)
 
-    def keyPressEvent(self, event):
+    def _make_button_callback(self, val: str):
+        # Retourne une fonction callback pour le bouton, compatible PyQt5
+        return lambda checked=False, v=val: self.on_button(v)
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
         key = event.key()
         if key in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             self.on_button('=')
@@ -54,7 +88,7 @@ class ToolCalculator(QDialog):
             elif text == 'p':
                 self.display.setText(self.display.text() + 'π')
 
-    def on_button(self, value):
+    def on_button(self, value: str) -> None:
         if value == 'C':
             self.display.clear()
         elif value == '⌫':
@@ -80,7 +114,7 @@ class ToolCalculator(QDialog):
         else:
             self.display.setText(self.display.text() + value)
 
-    def _replace_percent(self, expr):
+    def _replace_percent(self, expr: str) -> str:
         # Remplace a%b par (a/100*b) si % est utilisé comme opérateur
         import re
         return re.sub(r'(\d+(?:\.\d+)?)%([\d(])', r'(\1/100*\2)', expr)

@@ -1,4 +1,24 @@
-﻿"""Tool Manager Module pour CrazyTerm."""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Module : tool_manager.py
+
+Outil interne CrazyTerm : Gestionnaire d’outils (non natif, chargé dynamiquement)
+
+Rôle :
+    Gère le chargement dynamique, l’intégration et la gestion centralisée de tous les outils internes
+    et externes de CrazyTerm.
+
+Fonctionnalités principales :
+    - Découverte automatique des modules outils
+    - Chargement dynamique et gestion des instances
+    - Suivi des outils actifs et intégration à l’UI
+    - Journalisation des opérations
+
+Dépendances :
+    - importlib
+"""
 
 import importlib
 import glob

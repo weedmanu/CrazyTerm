@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
 CrazySerialTerm - Terminal série avancé
 Application de terminal série avec interface graphique PyQt5.

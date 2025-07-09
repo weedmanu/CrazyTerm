@@ -1,8 +1,32 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-Module de gestion des paramètres et de la configuration pour CrazySerialTerm.
-Ce module fournit un gestionnaire professionnel pour la sauvegarde, le chargement et la réinitialisation
- des paramètres de l'application, avec gestion d'erreur robuste et journalisation.
-Toutes les méthodes sont documentées et typées selon les standards professionnels.
+Module : config_manager.py
+
+Outil interne CrazyTerm : Gestion de la configuration (non natif, chargé dynamiquement)
+
+Rôle :
+    Gère la sauvegarde, le chargement, la réinitialisation et la validation des paramètres de configuration
+    de CrazyTerm, avec gestion d’erreur robuste et journalisation professionnelle.
+
+Fonctionnalités principales :
+    - Chargement/sauvegarde des paramètres utilisateur (JSON)
+    - Réinitialisation automatique et création de fichiers de config
+    - Journalisation des accès et erreurs
+    - Intégration avec les utilitaires système
+
+Dépendances :
+    - os
+    - json
+    - logging
+    - system.utilities
+
+Utilisation :
+    Ce module est utilisé par le cœur de l’application pour centraliser la gestion de la configuration.
+
+Auteur :
+    Projet CrazyTerm (2025) Manu
 """
 
 from __future__ import annotations

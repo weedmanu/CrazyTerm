@@ -1,13 +1,25 @@
 #!/usr/bin/env python3
-"""
-Script de purge du projet CrazyTerm
+# -*- coding: utf-8 -*-
 
-Supprime tous les fichiers générés, temporaires, de build, logs, .pyc, __pycache__, dist, build, etc.
-Usage :
-    python dev_tools/purge_project.py
 """
+Script : purge_project.py
+
+Outil interne CrazyTerm : Purge des fichiers temporaires, caches et artefacts de build.
+
+Rôle :
+    Supprime les fichiers et dossiers générés automatiquement (build, __pycache__, .pyc, etc.)
+    Permet de repartir d'un état propre pour les builds, tests et releases.
+
+Utilisation :
+    python dev_tools/purge_project.py
+
+Auteur :
+    Projet CrazyTerm (2025) Manu
+"""
+
 import os
 import shutil
+import fnmatch
 
 # Extensions et dossiers à supprimer
 PATTERNS = [
@@ -17,8 +29,6 @@ PATTERNS = [
 ]
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-
-import fnmatch
 
 def purge():
     print(f"Purge du projet dans : {ROOT}\n")

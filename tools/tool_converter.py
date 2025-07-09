@@ -1,9 +1,35 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-Outil de conversion de données pour CrazyTerm.
-Permet la conversion entre différents formats (texte, hexadécimal, binaire, etc.) avec historique et interface graphique.
+Module : tool_converter.py
+
+Outil externe CrazyTerm : Convertisseur de données (non natif, chargé dynamiquement)
+
+Rôle :
+    Fournit une interface graphique pour convertir des données entre différents formats (hexadécimal, binaire, ASCII, décimal, etc.)
+    dans l'application CrazyTerm.
+
+Fonctionnalités principales :
+    - Conversion entre de nombreux formats de données
+    - Interface utilisateur PyQt5 ergonomique
+    - Prise en charge du copier/coller, effacement, et affichage instantané
+    - Sécurité et robustesse des conversions
+
+Dépendances :
+    - PyQt5
+    - codecs
+
+Utilisation :
+    Ce module est chargé dynamiquement par le gestionnaire d’outils de CrazyTerm.
+    Il facilite la manipulation et la visualisation de données brutes ou encodées.
+
+Auteur :
+    Projet CrazyTerm (2025) Manu
 """
 
 from __future__ import annotations
+
 import logging
 from typing import Any, Optional, List
 from PyQt5.QtWidgets import (

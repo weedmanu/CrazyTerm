@@ -1,15 +1,35 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-Panneaux d'interface utilisateur pour CrazySerialTerm - Version série classique
-Ce module contient les classes pour les panneaux de l'interface série uniquement.
+Module : interface_components.py
 
-Classes :
-    CustomizationPanel : panneau de personnalisation des thèmes et couleurs.
-    ConnectionPanel : panneau de configuration de connexion série.
-    InputPanel : panneau d'envoi de données.
-    AdvancedSettingsPanel : panneau des paramètres avancés.
+Outil interne CrazyTerm : Panneaux d’interface utilisateur (non natif, chargé dynamiquement)
 
-Chaque classe expose des signaux Qt et des méthodes pour la gestion de l'UI et des paramètres.
-Toutes les méthodes sont documentées et typées pour répondre aux standards professionnels.
+Rôle :
+    Définit les panneaux graphiques principaux de l’interface série de CrazyTerm (personnalisation, connexion, envoi, paramètres avancés).
+    Fournit les classes CustomizationPanel, ConnectionPanel, InputPanel, AdvancedSettingsPanel, avec signaux Qt et gestion centralisée de l’UI.
+
+Fonctionnalités principales :
+    - Panneaux PyQt5 pour la personnalisation (thème, police, couleurs)
+    - Gestion de la connexion série (ports, vitesse, actions)
+    - Saisie et envoi de commandes série
+    - Paramètres avancés (envoi, affichage, série, log)
+    - Signaux Qt pour l’intégration avec la fenêtre principale
+    - Méthodes documentées et typées, robustesse et modularité
+
+Dépendances :
+    - PyQt5 (QtWidgets, QtCore, QtGui)
+    - typing
+    - logging
+    - (optionnel) serial.tools.list_ports, glob, json, os
+
+Utilisation :
+    Ce module est importé par la fenêtre principale et les gestionnaires d’UI pour construire dynamiquement l’interface série et ses outils.
+    Chaque panneau peut être instancié et intégré dans un layout PyQt5.
+
+Auteur :
+    Projet CrazyTerm (2025) Manu
 """
 
 from __future__ import annotations

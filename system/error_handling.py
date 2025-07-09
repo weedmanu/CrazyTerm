@@ -1,8 +1,35 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 """
-Module de gestion des erreurs pour CrazyTerm.
-Fournit des outils pour la capture, le traitement et la journalisation des erreurs.
+Module : error_handling.py
+
+Gestion avancée des erreurs pour CrazyTerm (non natif, chargé dynamiquement)
+
+Rôle :
+    Fournit des outils robustes pour la capture, le traitement, la journalisation et la gestion centralisée
+    des erreurs dans l’application CrazyTerm.
+
+Fonctionnalités principales :
+    - Décorateurs de robustesse (retry, backoff, etc.)
+    - Journalisation détaillée des exceptions
+    - Intégration avec les exceptions personnalisées du projet
+    - Outils de diagnostic et de reporting
+
+Dépendances :
+    - logging
+    - time
+    - functools
+    - system.custom_exceptions
+
+Utilisation :
+    Ce module est utilisé par les composants critiques de CrazyTerm pour garantir la fiabilité et la
+    traçabilité des erreurs.
+
+Auteur :
+    Projet CrazyTerm (2025) Manu
 """
+
 from __future__ import annotations
 
 import time

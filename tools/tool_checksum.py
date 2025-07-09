@@ -1,9 +1,32 @@
-"""
-Outil de calcul de checksums pour CrazySerialTerm.
-Fournit une interface graphique pour calculer différents checksums et hash sur des données ASCII ou HEX.
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-Ce module propose une calculatrice de checksums simple et quelques fonctions utilitaires.
-Toutes les méthodes sont documentées et typées pour la clarté et la maintenance.
+"""
+Module : tool_checksum.py
+
+Outil externe CrazyTerm : Calcul de checksums (non natif, chargé dynamiquement)
+
+Rôle :
+    Fournit une interface graphique pour calculer différents types de checksums (CRC, MD5, SHA, etc.)
+    sur des données saisies ou importées dans CrazyTerm.
+
+Fonctionnalités principales :
+    - Calcul de checksums standards (CRC8, CRC16, CRC32, MD5, SHA1, SHA256, etc.)
+    - Interface utilisateur PyQt5 intuitive
+    - Prise en charge de l'encodage hexadécimal, ASCII, binaire
+    - Affichage détaillé des résultats et options de copie
+
+Dépendances :
+    - PyQt5
+    - hashlib
+    - binascii
+
+Utilisation :
+    Ce module est chargé dynamiquement par le gestionnaire d’outils de CrazyTerm.
+    Il permet de vérifier l'intégrité ou l'identité de données transmises.
+
+Auteur :
+    Projet CrazyTerm (2025) Manu
 """
 
 from __future__ import annotations

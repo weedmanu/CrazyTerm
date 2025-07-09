@@ -1,6 +1,30 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-Fonctions utilitaires pour CrazySerialTerm
-Ce module contient des fonctions réutilisables dans l'application.
+Module : utilities.py
+
+Outil interne CrazyTerm : Fonctions utilitaires (non natif, chargé dynamiquement)
+
+Rôle :
+    Fournit des fonctions réutilisables pour la gestion des chemins, des ressources et des opérations
+    courantes dans CrazyTerm.
+
+Fonctionnalités principales :
+    - Gestion des chemins de ressources (compatibilité PyInstaller)
+    - Fonctions utilitaires diverses pour l’application
+    - Classe utilitaire centralisée
+
+Dépendances :
+    - sys
+    - os
+    - logging
+
+Utilisation :
+    Ce module est utilisé par différents composants pour simplifier la gestion des ressources et des chemins.
+
+Auteur :
+    Projet CrazyTerm (2025) Manu
 """
 
 from __future__ import annotations

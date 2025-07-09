@@ -1,13 +1,40 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-Gestion des thèmes graphiques pour CrazyTerm.
-Permet de personnaliser l'apparence de l'interface utilisateur.
+Module : theme_manager.py
+
+Outil interne CrazyTerm : Gestionnaire de thèmes graphiques (non natif, chargé dynamiquement)
+
+Rôle :
+    Permet de personnaliser l’apparence de l’interface utilisateur de CrazyTerm (thèmes clair, sombre, hacker).
+    Fournit les palettes de couleurs, l’application dynamique des thèmes, et la gestion centralisée des couleurs du terminal.
+
+Fonctionnalités principales :
+    - Application de thèmes PyQt5 (clair, sombre, hacker)
+    - Gestion des palettes globales et couleurs du terminal
+    - Méthodes pour rafraîchir l’affichage et appliquer les styles CSS
+    - Interface pour la gestion future de thèmes personnalisés (JSON)
+    - Robustesse, typage et journalisation
+
+Dépendances :
+    - PyQt5 (QtWidgets, QtGui)
+    - typing
+    - logging
+
+Utilisation :
+    Ce module est importé par la fenêtre principale et les gestionnaires d’UI pour appliquer dynamiquement les thèmes à l’application et au terminal.
+
+Auteur :
+    Projet CrazyTerm (2025) Manu
 """
 
 from __future__ import annotations
+
 from PyQt5.QtWidgets import QApplication, QTextEdit
 from PyQt5.QtGui import QColor, QPalette
 import logging
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Any
 
 __all__ = ["ThemeManager", "get_theme_terminal_colors"]
 
@@ -90,7 +117,7 @@ def get_theme_terminal_colors(theme_name: str) -> Dict[str, QColor]:
     Args:
         theme_name (str): Nom du thème.
     Returns:
-        dict: Dictionnaire des couleurs par type de message.
+        Dict[str, QColor]: Dictionnaire des couleurs par type de message.
     """
     if theme_name == 'clair':
         return {
@@ -175,28 +202,21 @@ class ThemeManager:
         """
         if not self.terminal_output:
             return
-        
-        # Applique la palette du thème à toute l'application
         app = QApplication.instance()
         if app:
             if theme_name == 'clair':
                 app.setPalette(get_light_palette())
-                # Appliquer le style CSS pour le terminal comme dans l'ancien programme
                 self.terminal_output.setStyleSheet("background-color: white; color: black;")
             elif theme_name == 'sombre':
                 app.setPalette(get_dark_palette())
-                # Appliquer le style CSS pour le terminal comme dans l'ancien programme
                 self.terminal_output.setStyleSheet("background-color: rgb(42, 42, 42); color: white;")
             elif theme_name == 'hacker':
                 app.setPalette(get_hacker_palette())
-                # Appliquer le style CSS pour le terminal comme dans l'ancien programme
                 self.terminal_output.setStyleSheet("background-color: black; color: rgb(0, 255, 0);")
-        
-        # Force la mise à jour du widget terminal
         self.terminal_output.update()
         logger.info(f"Affichage du terminal rafraîchi pour le thème : {theme_name}")
 
-    def save_custom_theme(self, theme_name: str, theme_data: dict) -> None:
+    def save_custom_theme(self, theme_name: str, theme_data: Dict[str, Any]) -> None:
         """
         Sauvegarde un thème personnalisé dans le stockage JSON.
         Args:
@@ -205,13 +225,13 @@ class ThemeManager:
         """
         logger.warning("La sauvegarde des thèmes personnalisés n'est plus supportée (QSettings supprimé). À réimplémenter en JSON si besoin.")
 
-    def load_custom_theme(self, theme_name: str) -> Optional[dict]:
+    def load_custom_theme(self, theme_name: str) -> Optional[Dict[str, Any]]:
         """
         Charge un thème personnalisé depuis le stockage JSON.
         Args:
             theme_name (str): Nom du thème à charger.
         Returns:
-            dict | None: Données du thème ou None si absent.
+            Optional[Dict[str, Any]]: Données du thème ou None si absent.
         """
         logger.warning("Le chargement des thèmes personnalisés n'est plus supporté (QSettings supprimé). À réimplémenter en JSON si besoin.")
         return None
@@ -220,7 +240,7 @@ class ThemeManager:
         """
         Retourne la liste des thèmes personnalisés disponibles.
         Returns:
-            list[str]: Liste des noms de thèmes personnalisés.
+            List[str]: Liste des noms de thèmes personnalisés.
         """
         logger.warning("La liste des thèmes personnalisés n'est plus supportée (QSettings supprimé). À réimplémenter en JSON si besoin.")
         return []
