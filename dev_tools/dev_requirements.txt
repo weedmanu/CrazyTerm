@@ -1,0 +1,5 @@
+# Dépendances de développement pour CrazyTerm
+flake8
+pylint
+pytest
+# Ajoutez ici d'autres outils de dev si besoin
