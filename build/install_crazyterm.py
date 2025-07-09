@@ -79,6 +79,19 @@ def clean_build():
 
 def build_exe():
     print("[ETAPE] Génération de l'exécutable...")
+    # Dossiers à inclure dynamiquement
+    internal_dirs = ["core", "system", "interface", "communication", "tools"]
+    hidden_imports: list[str] = []
+    for d in internal_dirs:
+        dir_path = os.path.join(PROJECT_ROOT, d)
+        if not os.path.isdir(dir_path):
+            continue
+        for f in os.listdir(dir_path):
+            if f.endswith('.py') and not f.startswith('_') and f != '__init__.py':
+                module_name = f"{d}.{f[:-3]}"
+                hidden_imports.append("--hidden-import")
+                hidden_imports.append(module_name)
+
     pyinstaller_args = [
         "python", "-m", "PyInstaller",
         "--onefile", "--windowed",
@@ -87,11 +100,12 @@ def build_exe():
         "--workpath", os.path.join(BUILD_DIR, "temp"),
         "--specpath", "build",
         "--noconsole",
+        # Imports explicites pour PyQt5 et pyserial
         "--hidden-import", "PyQt5.QtCore",
         "--hidden-import", "PyQt5.QtGui",
         "--hidden-import", "PyQt5.QtWidgets",
         "--hidden-import", "serial",
-    ]
+    ] + hidden_imports
     if os.path.exists(ICON_PATH):
         pyinstaller_args += ["--icon", ICON_PATH]
     pyinstaller_args.append(MAIN_SCRIPT)
