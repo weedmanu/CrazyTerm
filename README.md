@@ -16,12 +16,13 @@ Terminal série avancé avec interface graphique PyQt5.
 
 ## 🏁 Installation rapide (exécutable)
 
-1. Téléchargez le projet depuis GitHub
-2. Exécutez :
+1. Téléchargez le projet depuis GitHub et décompressez l’archive ZIP.
+2. Ouvrez un terminal dans le dossier `CrazyTerm`.
+3. Exécutez :
     ```bash
     python build/install_crazyterm.py
     ```
-3. Lancez l’application :
+4. Lancez l’application :
     ```cmd
     dist\CrazyTerm.exe
     ```
