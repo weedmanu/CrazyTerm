@@ -4,7 +4,7 @@ cd "$(dirname "$0")/.."
 
 # Vérifie si le venv est actif
 if [ ! -z "$VIRTUAL_ENV" ]; then
-    echo "[INFO] Un venv Python est actif. Fermez ce terminal avant de continuer."
+    echo "[INFO] Un venv Python est actif. Ce script doit être lancé hors venv !"
     exit 1
 fi
 

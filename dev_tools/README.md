@@ -36,26 +36,28 @@ Ce dossier regroupe tous les outils de développement, de validation et de maint
 
 ### Scripts de gestion de l’environnement virtuel
 
-#### `venv_reset.py`, `venv_reset.sh`, `venv_reset.bat`, `venv_reset.ps1`
-**But :** Suppriment et recréent l’environnement virtuel `.venv` à la racine du projet, puis installent les dépendances nécessaires.
+#### `venv_reset.bat` (Windows CMD)
+**But :** Réinitialise l’environnement virtuel `.venv` à la racine du projet, puis installe les dépendances nécessaires. À lancer hors venv !
 - **Utilisation :**
-  - Python (tous OS) :  
-    ```bash
-    python dev_tools/venv_reset.py
-    ```
-  - Bash (Linux/Mac) :  
-    ```bash
-    ./dev_tools/venv_reset.sh
-    ```
-  - Windows CMD :  
-    ```cmd
-    dev_tools\venv_reset.bat
-    ```
-  - PowerShell :  
-    ```powershell
-    dev_tools\venv_reset.ps1
-    ```
-- **Quand l’utiliser ?** Si l’environnement virtuel est corrompu, après un changement majeur de dépendances, ou pour repartir d’un environnement propre.
+  ```cmd
+  dev_tools\venv_reset.bat
+  ```
+
+#### `venv_reset.sh` (Linux/Mac)
+**But :** Réinitialise l’environnement virtuel `.venv` à la racine du projet, puis installe les dépendances nécessaires. À lancer hors venv !
+- **Utilisation :**
+  ```bash
+  ./dev_tools/venv_reset.sh
+  ```
+
+#### `venv_reset.py` (cross-plateforme, usage avancé)
+**But :** Réinitialise l’environnement virtuel `.venv` à la racine du projet, en Python pur. Peut être utilisé pour automatiser ou déboguer.
+- **Utilisation :**
+  ```bash
+  python dev_tools/venv_reset.py
+  ```
+
+- **Quand les utiliser ?** Si l’environnement virtuel est corrompu, après un changement majeur de dépendances, ou pour repartir d’un environnement propre. Toujours lancer ces scripts hors venv !
 
 ---
 
