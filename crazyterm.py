@@ -29,6 +29,13 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from core.main_window import Terminal
 from system.utilities import UtilityFunctions
 
+# Charger les paramètres de l'application depuis le JSON
+try:
+    APP_SETTINGS = UtilityFunctions.load_app_settings()
+except Exception as e:
+    print(f"Erreur de chargement des paramètres: {e}")
+    APP_SETTINGS = {}
+
 def setup_application() -> QApplication:
     """
     Configure l'application avec les paramètres par défaut.
@@ -48,6 +55,11 @@ def setup_application() -> QApplication:
 
         # Appliquer un style Fusion
         app.setStyle(QStyleFactory.create('Fusion'))
+
+        # Appliquer le thème depuis les paramètres
+        from interface.theme_manager import apply_theme
+        theme = APP_SETTINGS.get('theme', 'sombre')
+        apply_theme(theme)
         
         return app
     except Exception as e:
@@ -55,20 +67,21 @@ def setup_application() -> QApplication:
 
 def setup_logging() -> logging.Logger:
     """
-    Configure le système de journalisation.
-    
-    Returns:
-        logging.Logger: Le logger configuré pour l'application
-        
-    Raises:
-        RuntimeError: Si la configuration du logging échoue
+    Configure le système de journalisation (hors historique terminal).
     """
     try:
+        log_settings = APP_SETTINGS.get('log_settings', {})
+        log_enabled = log_settings.get('enabled', True)
+        log_path = log_settings.get('path', 'dev_tools/debug.log')
+        if not log_enabled:
+            logging.basicConfig(level=logging.CRITICAL)  # Désactive le log
+            return logging.getLogger("CrazySerialTerm")
+        os.makedirs(os.path.dirname(log_path), exist_ok=True)
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler("serial_terminal.log"),
+                logging.FileHandler(log_path),
                 logging.StreamHandler()
             ]
         )

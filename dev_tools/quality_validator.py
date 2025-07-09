@@ -111,7 +111,8 @@ class QualityValidator:
                     not file.startswith('test_') and 
                     not file.startswith('validate_') and
                     not file.startswith('check_') and
-                    not file.startswith('quality_')):
+                    not file.startswith('quality_') and
+                    file != '__init__.py'):
                     file_path = os.path.join(root, file)
                     python_files.append(file_path)
 

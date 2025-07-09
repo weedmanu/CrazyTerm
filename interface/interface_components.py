@@ -16,13 +16,15 @@ from __future__ import annotations
 
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QGroupBox, 
                             QLabel, QComboBox, QPushButton, QCheckBox, QLineEdit, QSpinBox,
-                            QColorDialog, QFontDialog)
+                            QColorDialog, QFontDialog, QFileDialog)
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QFont, QColor
 from typing import List, Dict, Optional, Union
 import logging
 
 logger = logging.getLogger("CrazySerialTerm")
+
+__all__ = []  # À compléter avec les classes/fonctions exportées si besoin
 
 class CustomizationPanel(QWidget):
     """
@@ -404,6 +406,29 @@ class ConnectionPanel(QGroupBox):
             'port': self.port_select.currentText(),
             'baudrate': int(self.baud_select.currentText())
         }
+    
+    def refresh_ports(self) -> None:
+        """
+        Rafraîchit la liste des ports série disponibles (cross-platform, robuste et performant).
+        """
+        try:
+            import sys
+            if sys.platform.startswith('win'):
+                import serial.tools.list_ports
+                ports = [port.device for port in serial.tools.list_ports.comports()]
+            elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+                import glob
+                ports = glob.glob('/dev/tty[A-Za-z]*')
+            elif sys.platform.startswith('darwin'):
+                import glob
+                ports = glob.glob('/dev/tty.*')
+            else:
+                ports = []
+            self.update_ports(ports)
+            logger.info(f"Ports série détectés : {ports}")
+        except Exception as e:
+            logger.error(f"Erreur lors du scan des ports série : {e}")
+            self.update_ports([])
 
 class InputPanel(QGroupBox):
     """
@@ -525,21 +550,15 @@ class AdvancedSettingsPanel(QWidget):
         # Groupe pour les options d'envoi
         self.send_group = QGroupBox("Options d'envoi")
         self.send_group.setCheckable(True)
-        self.send_group.setChecked(False)  # Décoché par défaut
+        self.send_group.setChecked(True)  # Coché par défaut
         send_layout = QGridLayout()
-        
-        # Format d'envoi
-        self.format_label = QLabel('Format :')
-        send_layout.addWidget(self.format_label, 0, 0)
-        self.format_select = QComboBox()
-        self.format_select.addItems(['ASCII', 'HEX'])
-        send_layout.addWidget(self.format_select, 0, 1)
         
         # Fin de ligne
         self.eol_label = QLabel('Fin de ligne :')
         send_layout.addWidget(self.eol_label, 0, 2)
         self.eol_select = QComboBox()
         self.eol_select.addItems(['Aucun', 'NL', 'CR', 'NL+CR'])
+        self.eol_select.setCurrentText('NL+CR')  # NL+CR par défaut
         send_layout.addWidget(self.eol_select, 0, 3)
         
         # Répétition
@@ -553,11 +572,18 @@ class AdvancedSettingsPanel(QWidget):
         self.repeat_interval.setFixedWidth(60)
         send_layout.addWidget(self.repeat_interval, 1, 3)
         
+        # Options d'envoi sur une seule ligne
+        send_layout = QGridLayout()
+        send_layout.addWidget(self.eol_label, 0, 0)
+        send_layout.addWidget(self.eol_select, 0, 1)
+        send_layout.addWidget(self.repeat_check, 0, 2)
+        send_layout.addWidget(self.interval_label, 0, 3)
+        send_layout.addWidget(self.repeat_interval, 0, 4)
+        
         self.send_group.setLayout(send_layout)
         
         # Stocker les widgets du groupe d'envoi pour la gestion de visibilité
         self.send_widgets = [
-            self.format_label, self.format_select,
             self.eol_label, self.eol_select,
             self.repeat_check,
             self.interval_label, self.repeat_interval
@@ -642,20 +668,31 @@ class AdvancedSettingsPanel(QWidget):
         
         layout.addWidget(self.serial_group)
         
+        # Groupe pour l'historique des commandes envoyées
+        self.log_group = QGroupBox("Historique des commandes envoyées")
+        log_layout = QHBoxLayout()
+        self.log_enabled_check = QCheckBox("Activer l'historique dans un fichier log")
+        self.log_enabled_check.setChecked(False)
+        log_layout.addWidget(self.log_enabled_check)
+        self.log_path_edit = QLineEdit('serial_terminal.log')
+        self.log_path_edit.setPlaceholderText("Chemin du fichier log")
+        log_layout.addWidget(self.log_path_edit)
+        self.log_browse_btn = QPushButton("...")
+        log_layout.addWidget(self.log_browse_btn)
+        self.log_group.setLayout(log_layout)
+        layout.addWidget(self.log_group)
+        
         # Boutons de sauvegarde/restauration
         btn_layout = QHBoxLayout()
-        self.save_btn = QPushButton("Sauvegarder les paramètres")
-        self.save_btn.setMinimumWidth(150)
-        btn_layout.addWidget(self.save_btn)
-        
-        self.load_btn = QPushButton("Restaurer les paramètres")
-        self.load_btn.setMinimumWidth(150)
-        btn_layout.addWidget(self.load_btn)
-        
+        # self.save_btn = QPushButton("Sauvegarder les paramètres")
+        # self.save_btn.setMinimumWidth(150)
+        # btn_layout.addWidget(self.save_btn)
+        # self.load_btn = QPushButton("Restaurer les paramètres")
+        # self.load_btn.setMinimumWidth(150)
+        # btn_layout.addWidget(self.load_btn)
         self.reset_btn = QPushButton("Réinitialiser")
         self.reset_btn.setMinimumWidth(100)
         btn_layout.addWidget(self.reset_btn)
-        
         layout.addLayout(btn_layout)
         layout.addStretch()
         
@@ -671,7 +708,6 @@ class AdvancedSettingsPanel(QWidget):
         self.serial_group.toggled.connect(self.on_serial_group_toggled)
         
         # Signaux des paramètres d'envoi
-        self.format_select.currentTextChanged.connect(self.on_send_settings_changed)
         self.eol_select.currentTextChanged.connect(self.on_send_settings_changed)
         self.repeat_check.toggled.connect(self.on_send_settings_changed)
         self.repeat_interval.textChanged.connect(self.on_send_settings_changed)
@@ -687,9 +723,12 @@ class AdvancedSettingsPanel(QWidget):
         self.stop_select.currentTextChanged.connect(self.on_serial_settings_changed)
         self.flow_select.currentTextChanged.connect(self.on_serial_settings_changed)
         
+        # Signaux des paramètres de log
+        self.log_enabled_check.toggled.connect(self.on_log_settings_changed)
+        self.log_path_edit.textChanged.connect(self.on_log_settings_changed)
+        self.log_browse_btn.clicked.connect(self.browse_log_file)
+        
         # Signaux des boutons
-        self.save_btn.clicked.connect(self.save_settings)
-        self.load_btn.clicked.connect(self.load_settings)
         self.reset_btn.clicked.connect(self.reset_settings)
     
     def on_send_group_toggled(self, checked: bool) -> None:
@@ -755,48 +794,78 @@ class AdvancedSettingsPanel(QWidget):
             settings = self.get_serial_settings()
             self.serial_settings_changed.emit(settings)
     
+    def on_log_settings_changed(self) -> None:
+        """
+        Appelé quand les paramètres de log changent. Émet le signal associé.
+        """
+        settings = self.get_log_settings()
+        self.settings_changed.emit()
+        # Optionnel : signal dédié si besoin
+    
+    def browse_log_file(self) -> None:
+        """
+        Ouvre un dialogue pour choisir le fichier log.
+        """
+        path, _ = QFileDialog.getSaveFileName(self, "Choisir le fichier log", self.log_path_edit.text(), "Fichiers log (*.log);;Tous les fichiers (*)")
+        if path:
+            self.log_path_edit.setText(path)
+    
+    def get_log_settings(self) -> Dict[str, object]:
+        """
+        Retourne les paramètres de log.
+        Returns:
+            Dict[str, object]: Dictionnaire des paramètres de log.
+        """
+        return {
+            'enabled': self.log_enabled_check.isChecked(),
+            'path': self.log_path_edit.text()
+        }
+    
     def save_settings(self) -> None:
         """
-        Sauvegarde les paramètres actuels dans un fichier JSON.
+        Sauvegarde les paramètres actuels dans le fichier centralisé config/settings.json.
         """
         try:
+            import json
+            import os
+            config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'settings.json')
+            config_path = os.path.normpath(config_path)
             settings = {
                 'send_group_enabled': self.send_group.isChecked(),
                 'display_group_enabled': self.display_group.isChecked(),
                 'serial_group_enabled': self.serial_group.isChecked(),
                 'send_settings': self.get_send_settings(),
                 'display_settings': self.get_display_settings(),
-                'serial_settings': self.get_serial_settings()
+                'serial_settings': self.get_serial_settings(),
+                'log_settings': self.get_log_settings(),
             }
-            
-            # Sauvegarder dans un fichier JSON
-            import json
-            with open('advanced_settings.json', 'w') as f:
-                json.dump(settings, f, indent=2)
-            
-            logger.info("Paramètres avancés sauvegardés")
-            
+            with open(config_path, 'r', encoding='utf-8') as f:
+                all_settings = json.load(f)
+            all_settings['advanced_settings'] = settings
+            with open(config_path, 'w', encoding='utf-8') as f:
+                json.dump(all_settings, f, indent=2)
+            logger.info("Paramètres avancés sauvegardés dans config/settings.json")
         except Exception as e:
-            logger.error(f"Erreur lors de la sauvegarde des paramètres: {e}")
-    
+            logger.error(f"Erreur lors de la sauvegarde des paramètres avancés: {e}")
+
     def load_settings(self) -> None:
         """
-        Charge les paramètres sauvegardés depuis un fichier JSON.
+        Charge les paramètres avancés depuis le fichier centralisé config/settings.json.
         """
         try:
             import json
-            with open('advanced_settings.json', 'r') as f:
-                settings = json.load(f)
-            
+            import os
+            config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'settings.json')
+            config_path = os.path.normpath(config_path)
+            with open(config_path, 'r', encoding='utf-8') as f:
+                all_settings = json.load(f)
+            settings = all_settings.get('advanced_settings', {})
             # Restaurer l'état des groupes
             self.send_group.setChecked(settings.get('send_group_enabled', False))
             self.display_group.setChecked(settings.get('display_group_enabled', False))
             self.serial_group.setChecked(settings.get('serial_group_enabled', False))
-            
             # Restaurer les paramètres d'envoi
             send_settings = settings.get('send_settings', {})
-            if 'format' in send_settings:
-                self.format_select.setCurrentText(send_settings['format'])
             if 'eol' in send_settings:
                 self.eol_select.setCurrentText(send_settings['eol'])
             if 'repeat' in send_settings:
@@ -823,8 +892,12 @@ class AdvancedSettingsPanel(QWidget):
             if 'stopbits' in serial_settings:
                 self.stop_select.setCurrentText(str(serial_settings['stopbits']))
             
-            logger.info("Paramètres avancés chargés")
+            # Restaurer les paramètres de log
+            log_settings = settings.get('log_settings', {})
+            self.log_enabled_check.setChecked(log_settings.get('enabled', False))
+            self.log_path_edit.setText(log_settings.get('path', 'serial_terminal.log'))
             
+            logger.info("Paramètres avancés chargés")
         except FileNotFoundError:
             logger.info("Aucun fichier de paramètres trouvé")
         except Exception as e:
@@ -840,19 +913,18 @@ class AdvancedSettingsPanel(QWidget):
         self.serial_group.setChecked(False)
         
         # Remettre les valeurs par défaut
-        self.format_select.setCurrentText('ASCII')
-        self.eol_select.setCurrentText('Aucun')
+        self.eol_select.setCurrentText('NL+CR')
         self.repeat_check.setChecked(False)
         self.repeat_interval.setText('1000')
-        
         self.display_format.setCurrentText('ASCII')
         self.auto_scroll_check.setChecked(True)
         self.timestamp_check.setChecked(False)
-        
         self.data_select.setCurrentText('8')
         self.parity_select.setCurrentText('Aucune')
         self.stop_select.setCurrentText('1')
         self.flow_select.setCurrentText('Aucun')
+        self.log_enabled_check.setChecked(False)
+        self.log_path_edit.setText('serial_terminal.log')
         
         logger.info("Paramètres remis par défaut")
     
@@ -863,7 +935,7 @@ class AdvancedSettingsPanel(QWidget):
             Dict[str, Union[str, bool]]: Dictionnaire des paramètres d'envoi.
         """
         return {
-            'format': self.format_select.currentText(),
+            'format': 'ASCII',  # Toujours ASCII
             'eol': self.eol_select.currentText(),
             'repeat': self.repeat_check.isChecked(),
             'interval': self.repeat_interval.text()
@@ -901,5 +973,77 @@ class AdvancedSettingsPanel(QWidget):
             'stopbits': stop_bits_map[self.stop_select.currentText()],
             **flow_control_map[self.flow_select.currentText()]
         }
+    
+    def get_all_settings(self) -> dict:
+        """
+        Retourne tous les paramètres avancés sous forme de dictionnaire, y compris l'état des groupes et cases à cocher connexes.
+        """
+        settings = {
+            'send_group_enabled': self.send_group.isChecked(),
+            'display_group_enabled': self.display_group.isChecked(),
+            'serial_group_enabled': self.serial_group.isChecked(),
+            'send_settings': self.get_send_settings(),
+            'display_settings': self.get_display_settings(),
+            'serial_settings': self.get_serial_settings(),
+            'log_settings': self.get_log_settings(),
+        }
+        # Ajout état des cases à cocher du ConnectionPanel si accessible
+        if hasattr(self.parent(), 'serial_panel') and self.parent().serial_panel:
+            panel = self.parent().serial_panel
+            if hasattr(panel, 'port_select'):
+                settings['connection_panel_port'] = panel.port_select.currentText()
+            if hasattr(panel, 'baud_select'):
+                settings['connection_panel_baud'] = panel.baud_select.currentText()
+        # Ajout état du InputPanel (rien à sauvegarder sauf si on veut le texte)
+        return settings
 
-__all__ = []
+    def set_all_settings(self, settings: dict) -> None:
+        """
+        Applique tous les paramètres avancés depuis un dictionnaire, y compris l'état des groupes et cases à cocher connexes.
+        """
+        # Restaurer l'état des groupes
+        self.send_group.setChecked(settings.get('send_group_enabled', False))
+        self.display_group.setChecked(settings.get('display_group_enabled', False))
+        self.serial_group.setChecked(settings.get('serial_group_enabled', False))
+        # Restaurer les paramètres d'envoi
+        send_settings = settings.get('send_settings', {})
+        if 'eol' in send_settings:
+            self.eol_select.setCurrentText(send_settings['eol'])
+        if 'repeat' in send_settings:
+            self.repeat_check.setChecked(send_settings['repeat'])
+        if 'interval' in send_settings:
+            self.repeat_interval.setText(str(send_settings['interval']))
+        # Restaurer les paramètres d'affichage
+        display_settings = settings.get('display_settings', {})
+        if 'format' in display_settings:
+            self.display_format.setCurrentText(display_settings['format'])
+        if 'auto_scroll' in display_settings:
+            self.auto_scroll_check.setChecked(display_settings['auto_scroll'])
+        if 'timestamp' in display_settings:
+            self.timestamp_check.setChecked(display_settings['timestamp'])
+        # Restaurer les paramètres série
+        serial_settings = settings.get('serial_settings', {})
+        if 'bytesize' in serial_settings:
+            self.data_select.setCurrentText(str(serial_settings['bytesize']))
+        if 'parity' in serial_settings:
+            parity_reverse_map = {'N': 'Aucune', 'E': 'Paire', 'O': 'Impaire'}
+            self.parity_select.setCurrentText(parity_reverse_map.get(serial_settings['parity'], 'Aucune'))
+        if 'stopbits' in serial_settings:
+            self.stop_select.setCurrentText(str(serial_settings['stopbits']))
+        # Restaurer les paramètres de log
+        log_settings = settings.get('log_settings', {})
+        self.log_enabled_check.setChecked(log_settings.get('enabled', False))
+        self.log_path_edit.setText(log_settings.get('path', 'serial_terminal.log'))
+        # Restaurer état du ConnectionPanel si présent
+        if 'connection_panel_port' in settings and hasattr(self.parent(), 'serial_panel'):
+            panel = self.parent().serial_panel
+            if hasattr(panel, 'port_select'):
+                idx = panel.port_select.findText(settings['connection_panel_port'])
+                if idx >= 0:
+                    panel.port_select.setCurrentIndex(idx)
+        if 'connection_panel_baud' in settings and hasattr(self.parent(), 'serial_panel'):
+            panel = self.parent().serial_panel
+            if hasattr(panel, 'baud_select'):
+                idx = panel.baud_select.findText(settings['connection_panel_baud'])
+                if idx >= 0:
+                    panel.baud_select.setCurrentIndex(idx)

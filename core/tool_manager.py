@@ -1,7 +1,11 @@
 ﻿"""Tool Manager Module pour CrazyTerm."""
 
+import importlib
+import glob
 import logging
 from typing import Dict, Any, Optional, List
+from tools.tool_checksum import ChecksumCalculator
+from tools.tool_converter import DataConverter
 
 logger = logging.getLogger(__name__)
 
@@ -9,12 +13,46 @@ logger = logging.getLogger(__name__)
 class ToolManager:
     """Gestionnaire des outils pour CrazyTerm."""
     
-    def __init__(self) -> None:
-        """Initialise le gestionnaire d'outils."""
+    def __init__(self, parent=None) -> None:
+        """Initialise le gestionnaire d'outils dynamiquement avec parent Qt."""
         self.tools: Dict[str, Any] = {}
         self.active_tools: List[str] = []
+        self.parent = parent
+        self.checksum_calculator = ChecksumCalculator(parent)
+        self.data_converter = DataConverter(parent)
+        self._load_dynamic_tools()
         
-        logger.info("ToolManager initialisé")
+        logger.info("ToolManager initialisé (chargement dynamique)")
+    
+    def _load_dynamic_tools(self) -> None:
+        """Scanne le dossier tools et importe dynamiquement tous les outils tool_*.py."""
+        import os
+        tools_dir = os.path.join(os.path.dirname(__file__), '..', 'tools')
+        pattern = os.path.join(tools_dir, 'tool_*.py')
+        for tool_path in glob.glob(pattern):
+            module_name = os.path.splitext(os.path.basename(tool_path))[0]
+            try:
+                module = importlib.import_module(f'tools.{module_name}')
+                tool_class = None
+                # 1. Cherche une classe commençant par 'tool'
+                for attr in dir(module):
+                    obj = getattr(module, attr)
+                    if isinstance(obj, type) and attr.lower().startswith('tool'):
+                        tool_class = obj
+                        break
+                # 2. Sinon, prend la première classe trouvée
+                if not tool_class:
+                    for attr in dir(module):
+                        obj = getattr(module, attr)
+                        if isinstance(obj, type) and not attr.startswith('__'):
+                            tool_class = obj
+                            break
+                if tool_class:
+                    instance = tool_class(self.parent) if self.parent else tool_class()
+                    self.register_tool(module_name, instance)
+                    logger.info(f"Outil dynamique chargé: {module_name}")
+            except Exception as e:
+                logger.warning(f"Échec chargement outil {module_name}: {e}")
     
     def register_tool(self, name: str, tool: Any) -> None:
         """Enregistre un outil."""
@@ -45,6 +83,14 @@ class ToolManager:
     def get_active_tools(self) -> List[str]:
         """Retourne la liste des outils actifs."""
         return self.active_tools.copy()
+    
+    def show_checksum_calculator(self):
+        """Affiche le calculateur de somme de contrôle."""
+        self.checksum_calculator.show()
+
+    def show_data_converter(self):
+        """Affiche le convertisseur de données."""
+        self.data_converter.show()
     
     def __str__(self) -> str:
         """Retourne une représentation string du ToolManager."""

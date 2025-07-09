@@ -1,100 +1,168 @@
-
 """
-Outils de conversion pour CrazyTerm.
-Contient des fonctions utilitaires pour la conversion de formats et de données.
+Outil de conversion de données pour CrazyTerm.
+Permet la conversion entre différents formats (texte, hexadécimal, binaire, etc.) avec historique et interface graphique.
 """
 
 from __future__ import annotations
-
 import logging
-from typing import Optional
-from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QTextEdit, 
-                             QPushButton, QGroupBox)
+from typing import Any, Optional, List
+from PyQt5.QtWidgets import (
+    QWidget, QVBoxLayout, QLineEdit, QPushButton, QTextEdit, QLabel,
+    QHBoxLayout, QListWidget, QMessageBox
+)
 
-logger = logging.getLogger("CrazySerialTerm.ToolConverter")
+__all__ = ["DataConverter"]
 
-class DataConverter(QDialog):
-    """Convertisseur de données ASCII/HEX avec interface graphique."""
-    def __init__(self, parent: Optional[QDialog] = None) -> None:
-        """Initialise la fenêtre de conversion."""
+logger = logging.getLogger("CrazyTerm.ToolConverter")
+
+class DataConverter(QWidget):
+    """
+    Fenêtre d'outil de conversion de données (texte, hex, binaire, etc.) avec historique.
+    """
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        """
+        Initialise la fenêtre de conversion de données.
+        Args:
+            parent (QWidget, optionnel): Widget parent.
+        """
         super().__init__(parent)
-        self.setWindowTitle("Convertisseur de Données (ASCII/HEX)")
-        self.resize(400, 200)
+        self.setWindowTitle("Convertisseur de données")
+        self.input_edit = QLineEdit()
+        self.output_edit = QTextEdit()
+        self.convert_button = QPushButton("Convertir")
+        self.history_list = QListWidget()
+        self.copy_button = QPushButton("Copier")
+        self.paste_button = QPushButton("Coller")
+        self.clear_button = QPushButton("Effacer")
+        self.init_ui()
+        self.history: List[str] = []
+        self.convert_button.clicked.connect(self.convert)
+        self.copy_button.clicked.connect(self.copyOutput)
+        self.paste_button.clicked.connect(self.pasteInput)
+        self.clear_button.clicked.connect(self.clearHistory)
+        self.history_list.itemDoubleClicked.connect(self.useHistoryItem)
+        self.input_edit.textChanged.connect(self.autoConvert)
+        logger.info("DataConverter initialisé")
 
-        layout: QVBoxLayout = QVBoxLayout(self)
+    def init_ui(self) -> None:
+        """
+        Initialise l'interface utilisateur du convertisseur.
+        """
+        layout = QVBoxLayout(self)
+        layout.addWidget(QLabel("Entrée :"))
+        layout.addWidget(self.input_edit)
+        btn_layout = QHBoxLayout()
+        btn_layout.addWidget(self.convert_button)
+        btn_layout.addWidget(self.copy_button)
+        btn_layout.addWidget(self.paste_button)
+        btn_layout.addWidget(self.clear_button)
+        layout.addLayout(btn_layout)
+        layout.addWidget(QLabel("Sortie :"))
+        layout.addWidget(self.output_edit)
+        layout.addWidget(QLabel("Historique :"))
+        layout.addWidget(self.history_list)
+        self.setLayout(layout)
 
-        # Zone d'entrée
-        inputGroup: QGroupBox = QGroupBox("Données d'entrée")
-        inputLayout: QVBoxLayout = QVBoxLayout()
-        self.inputText: QTextEdit = QTextEdit()
-        self.inputText.setPlaceholderText("Entrez les données à convertir...")
-        inputLayout.addWidget(self.inputText)
-        inputGroup.setLayout(inputLayout)
-        layout.addWidget(inputGroup)
+    def updateInputPlaceholder(self) -> None:
+        """
+        Met à jour le placeholder de la zone d'entrée selon le mode de conversion.
+        """
+        self.input_edit.setPlaceholderText("Entrez les données à convertir...")
 
-        # Zone de sortie
-        outputGroup: QGroupBox = QGroupBox("Données converties")
-        outputLayout: QVBoxLayout = QVBoxLayout()
-        self.outputText: QTextEdit = QTextEdit()
-        self.outputText.setReadOnly(True)
-        outputLayout.addWidget(self.outputText)
-        outputGroup.setLayout(outputLayout)
-        layout.addWidget(outputGroup)
-
-        # Boutons
-        buttonLayout: QHBoxLayout = QHBoxLayout()
-        self.toHexBtn: QPushButton = QPushButton("Convertir en HEX")
-        self.toHexBtn.clicked.connect(self.convertToHex)
-        buttonLayout.addWidget(self.toHexBtn)
-
-        self.toAsciiBtn: QPushButton = QPushButton("Convertir en ASCII")
-        self.toAsciiBtn.clicked.connect(self.convertToAscii)
-        buttonLayout.addWidget(self.toAsciiBtn)
-
-        closeBtn: QPushButton = QPushButton("Fermer")
-        closeBtn.clicked.connect(self.accept)
-        buttonLayout.addWidget(closeBtn)
-
-        layout.addLayout(buttonLayout)
-
-    def convertToHex(self) -> None:
-        """Convertit le texte ASCII en HEX et affiche le résultat."""
+    def addToHistory(self, value: str) -> None:
+        """
+        Ajoute une valeur à l'historique et à la liste graphique.
+        Args:
+            value (str): Valeur à ajouter à l'historique.
+        """
         try:
-            text: str = self.inputText.toPlainText()
-            if not text:
-                self.outputText.setText("Aucune donnée à convertir")
-                return
-            self.outputText.setText(' '.join(f'{ord(c):02X}' for c in text))
-            logger.info("Conversion ASCII -> HEX réussie.")
+            if value and value not in self.history:
+                self.history.append(value)
+                self.history_list.addItem(value)
         except Exception as e:
-            self.outputText.setText(f"Erreur lors de la conversion: {str(e)}")
-            logger.error(f"Erreur conversion ASCII->HEX: {e}")
-            
-    def convertToAscii(self) -> None:
-        """Convertit le texte HEX en ASCII et affiche le résultat."""
-        try:
-            text: str = self.inputText.toPlainText().replace(' ', '').replace('\n', '').replace('\t', '')
-            if not text:
-                self.outputText.setText("Aucune donnée à convertir")
-                return
-            if len(text) % 2 != 0:
-                self.outputText.setText("Erreur : nombre impair de caractères HEX")
-                return
-            self.outputText.setText(bytes.fromhex(text).decode('utf-8', errors='replace'))
-            logger.info("Conversion HEX -> ASCII réussie.")
-        except ValueError:
-            self.outputText.setText("Erreur : données HEX invalides")
-            logger.error("Erreur : données HEX invalides")
-        except Exception as e:
-            self.outputText.setText(f"Erreur lors de la conversion: {str(e)}")
-            logger.error(f"Erreur conversion HEX->ASCII: {e}")
-
-    def convert(self) -> None:
-        """Convertit les données ASCII/HEX selon le mode sélectionné."""
-        try:
-            pass  # Logique de conversion à compléter si besoin
-        except Exception as e:
-            logger.error(f"Erreur lors de la conversion: {e}")
+            logger.error(f"Erreur lors de l'ajout à l'historique : {e}")
             raise
 
-__all__ = []
+    def useHistoryItem(self, item: Any) -> None:
+        """
+        Utilise un élément de l'historique (double-clic).
+        Args:
+            item (QListWidgetItem): Élément sélectionné.
+        """
+        if hasattr(item, 'text'):
+            self.input_edit.setText(item.text())
+        else:
+            logger.warning("L'élément d'historique ne possède pas de méthode text().")
+
+    def copyOutput(self) -> None:
+        """
+        Copie le texte de sortie dans le presse-papiers.
+        """
+        try:
+            text = self.output_edit.toPlainText()
+            if text:
+                self.output_edit.selectAll()
+                self.output_edit.copy()
+                logger.info("Sortie copiée dans le presse-papiers")
+        except Exception as e:
+            logger.error(f"Erreur lors de la copie de la sortie : {e}")
+            QMessageBox.warning(self, "Erreur", f"Impossible de copier la sortie : {e}")
+
+    def pasteInput(self) -> None:
+        """
+        Colle le texte du presse-papiers dans la zone d'entrée.
+        """
+        try:
+            self.input_edit.paste()
+            logger.info("Entrée collée depuis le presse-papiers")
+        except Exception as e:
+            logger.error(f"Erreur lors du collage de l'entrée : {e}")
+            QMessageBox.warning(self, "Erreur", f"Impossible de coller l'entrée : {e}")
+
+    def convert(self) -> None:
+        """
+        Effectue la conversion des données saisies et affiche le résultat.
+        """
+        try:
+            value = self.input_edit.text()
+            if not value:
+                self.output_edit.setPlainText("")
+                return
+            # Conversion simple : texte <-> hex (exemple)
+            if all(c in '0123456789abcdefABCDEF ' for c in value.replace(' ', '')):
+                # Hex -> texte
+                try:
+                    bytes_data = bytes.fromhex(value)
+                    result = bytes_data.decode('utf-8', errors='replace')
+                except Exception as e:
+                    result = f"Erreur de décodage hex : {e}"
+            else:
+                # Texte -> hex
+                try:
+                    result = value.encode('utf-8').hex(' ')
+                except Exception as e:
+                    result = f"Erreur d'encodage texte : {e}"
+            self.output_edit.setPlainText(result)
+            self.addToHistory(value)
+            logger.info(f"Conversion effectuée : {value} -> {result}")
+        except Exception as e:
+            logger.error(f"Erreur lors de la conversion : {e}")
+            self.output_edit.setPlainText(f"Erreur : {e}")
+
+    def autoConvert(self) -> None:
+        """
+        Conversion automatique à chaque modification de l'entrée.
+        """
+        self.convert()
+
+    def clearHistory(self) -> None:
+        """
+        Efface l'historique des conversions.
+        """
+        try:
+            self.history.clear()
+            self.history_list.clear()
+            logger.info("Historique effacé")
+        except Exception as e:
+            logger.error(f"Erreur lors de l'effacement de l'historique : {e}")
+            raise

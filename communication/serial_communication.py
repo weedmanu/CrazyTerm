@@ -8,7 +8,7 @@ from __future__ import annotations
 import serial
 import serial.tools.list_ports
 from datetime import datetime
-from typing import List, Dict, Any, Optional, Deque, Callable
+from typing import List, Dict, Any, Optional, Deque
 import logging
 from collections import deque
 
@@ -366,50 +366,78 @@ class RobustSerialManager(QObject):
         """
         if not isinstance(data, bytes):
             raise DataTransmissionException("Les données doivent être de type bytes")
-            
         if not data:
             logger.warning("Tentative d'envoi de données vides")
+            self.error_occurred.emit("Aucune donnée à envoyer (0 octet)")
             return False
-            
         if len(data) > 65536:  # Limite de 64KB
             raise DataTransmissionException("Données trop volumineuses (max 64KB)")
-            
-        with QMutexLocker(self.mutex):
-            if not self.is_connected():
-                self.error_occurred.emit("Aucune connexion active")
+        # DIAGNOSTIC : on désactive temporairement le mutex pour voir si le blocage vient de là
+        # with QMutexLocker(self.mutex):
+        if not self.is_connected():
+            self.error_occurred.emit("Aucune connexion active")
+            return False
+        try:
+            logger.info(f"[DEBUG] Avant serial_port.write, len={len(data)}")
+            sent = self.serial_port.write(data) if self.serial_port else 0
+            logger.info(f"[DEBUG] Après serial_port.write, sent={sent}")
+            if sent is None:
+                sent = 0
+            self.tx_bytes_count += sent
+            if sent == 0:
+                logger.warning("Aucun octet réellement envoyé sur le port série !")
+                self.error_occurred.emit("Aucun octet envoyé sur le port série !")
                 return False
+            logger.debug(f"Envoi réussi: {sent} octets")
+            return True
+        except (serial.SerialException, OSError, IOError) as e:
+            error_msg = f"Erreur d'envoi: {e}"
+            logger.error(error_msg)
+            self.error_occurred.emit(error_msg)
+            return False
+        except Exception as e:
+            error_msg = f"Erreur inattendue lors de l'envoi: {e}"
+            logger.error(error_msg)
+            self.error_occurred.emit(error_msg)
+            return False
                 
+    def format_and_send(self, data: str, format_type: str = 'text', eol: str = 'Aucun') -> bool:
+        """
+        Formate la chaîne selon le type et la fin de ligne, puis envoie sur le port série.
+        Args:
+            data (str): Données brutes à envoyer.
+            format_type (str): 'text' ou 'hex'.
+            eol (str): 'Aucun', 'NL', 'CR', 'NL+CR'.
+        Returns:
+            bool: True si l'envoi a réussi, False sinon.
+        """
+        # Gestion du format
+        if format_type == 'ascii':
+            format_type = 'text'
+        elif format_type == 'hex':
+            format_type = 'hex'
+        # Gestion de la fin de ligne
+        if eol == 'NL':
+            data += '\n'
+        elif eol == 'CR':
+            data += '\r'
+        elif eol == 'NL+CR':
+            data += '\r\n'
+        elif eol == 'Aucun' or not eol:
+            pass  # Ne rien ajouter
+        # Conversion selon le format
+        if format_type == 'hex':
             try:
-                # Envoi par chunks pour éviter les blocages
-                chunk_size = 1024
-                total_sent: int = 0
-                
-                for i in range(0, len(data), chunk_size):
-                    chunk = data[i:i + chunk_size]
-                    sent = self.serial_port.write(chunk) if self.serial_port else 0
-                    if sent is None:
-                        sent = 0
-                    total_sent += sent
-                    
-                    # Forcer l'envoi
-                    if self.serial_port:
-                        self.serial_port.flush()
-                    
-                self.tx_bytes_count += total_sent
-                logger.debug(f"Envoi réussi: {total_sent} octets")
-                return True
-                
-            except (serial.SerialException, OSError, IOError) as e:
-                error_msg = f"Erreur d'envoi: {e}"
-                logger.error(error_msg)
-                self.error_occurred.emit(error_msg)
+                hex_data = data.replace(' ', '').replace('0x', '')
+                data_bytes = bytes.fromhex(hex_data)
+            except ValueError:
+                logger.error("Format hexadécimal invalide")
+                self.error_occurred.emit("Format hexadécimal invalide")
                 return False
-            except Exception as e:
-                error_msg = f"Erreur inattendue lors de l'envoi: {e}"
-                logger.error(error_msg)
-                self.error_occurred.emit(error_msg)
-                return False
-                
+        else:
+            data_bytes = data.encode('utf-8')
+        return self.send_data(data_bytes)
+
     def _on_data_received(self, data: bytes) -> None:
         """
         Traite les données reçues du thread de lecture et met à jour les statistiques.

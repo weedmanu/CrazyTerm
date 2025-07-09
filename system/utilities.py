@@ -47,5 +47,28 @@ class UtilityFunctions:
             logger.error(f"Erreur lors de la construction du chemin: {e}")
             raise
 
+    @staticmethod
+    def load_app_settings() -> dict:
+        """
+        Charge les paramètres de l'application depuis le fichier config/settings.json.
+        
+        Returns:
+            dict: Dictionnaire des paramètres chargés
+        
+        Raises:
+            FileNotFoundError: Si le fichier n'existe pas
+            ValueError: Si le JSON est invalide
+        """
+        import json
+        config_path = UtilityFunctions.resource_path('config/settings.json')
+        if not os.path.exists(config_path):
+            raise FileNotFoundError(f"Fichier de configuration introuvable: {config_path}")
+        with open(config_path, 'r', encoding='utf-8') as f:
+            try:
+                return json.load(f)
+            except Exception as e:
+                logger.error(f"Erreur lors du chargement du fichier de configuration: {e}")
+                raise ValueError(f"Erreur de parsing JSON: {e}")
+
 __all__ = []
 

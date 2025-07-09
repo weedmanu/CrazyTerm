@@ -1,0 +1,69 @@
+{
+    "theme": "hacker",
+    "send_group_enabled": true,
+    "display_group_enabled": false,
+    "serial_group_enabled": false,
+    "send_settings": {
+        "format": "ASCII",
+        "eol": "NL+CR",
+        "repeat": false,
+        "interval": "1000"
+    },
+    "display_settings": {
+        "format": "ASCII",
+        "auto_scroll": true,
+        "timestamp": false
+    },
+    "serial_settings": {
+        "bytesize": 8,
+        "parity": "N",
+        "stopbits": 1,
+        "xonxoff": false,
+        "rtscts": false,
+        "dsrdtr": false
+    },
+    "log_settings": {
+        "enabled": false,
+        "path": "serial_terminal.log"
+    },
+    "advanced_settings": {
+        "send_group_enabled": false,
+        "display_group_enabled": false,
+        "serial_group_enabled": false,
+        "send_settings": {
+            "format": "ASCII",
+            "eol": "NL+CR",
+            "repeat": false,
+            "interval": "1000"
+        },
+        "display_settings": {
+            "format": "ASCII",
+            "auto_scroll": true,
+            "timestamp": false
+        },
+        "serial_settings": {
+            "bytesize": 8,
+            "parity": "N",
+            "stopbits": 1,
+            "xonxoff": false,
+            "rtscts": false,
+            "dsrdtr": false
+        },
+        "log_settings": {
+            "enabled": false,
+            "path": "serial_terminal.log"
+        },
+        "settings_tab_visible": true
+    },
+    "window_geometry": [
+        100,
+        100,
+        1200,
+        800
+    ],
+    "terminal_font": {
+        "family": "Consolas",
+        "size": 10
+    },
+    "send_panel_visible": false
+}

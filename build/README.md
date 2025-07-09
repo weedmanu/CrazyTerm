@@ -19,4 +19,3 @@ python build/install_crazyterm.py
 Suivez les instructions à l'écran. Aucun prérequis n'est nécessaire (le script guide l'installation de Python si besoin).
 
 **⚠️ Limitation Windows** : Pour des raisons de sécurité (antivirus), l'exécutable généré ne fonctionnera de façon fiable que sur le PC où il a été créé. Pour une distribution sur d'autres machines, il est recommandé de re-générer l'exécutable sur chaque poste cible.
-

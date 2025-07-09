@@ -20,17 +20,45 @@ from PyQt5.QtWidgets import (QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QTe
                             QPushButton, QShortcut, QLineEdit, QComboBox, QGroupBox,
                             QCheckBox, QSpinBox, QGridLayout, QInputDialog, QMenuBar)
 from PyQt5.QtGui import QColor, QTextCursor, QFont, QKeySequence, QTextCharFormat, QCloseEvent
-from PyQt5.QtCore import Qt, QSettings, QTimer
+from PyQt5.QtCore import Qt, QSettings, QTimer, QThread, pyqtSignal, QObject
 
 from communication.serial_communication import RobustSerialManager
 from interface.interface_components import (ConnectionPanel, InputPanel, AdvancedSettingsPanel)
 from core.config_manager import SettingsManager
-from interface.theme_manager import apply_theme
+from interface.theme_manager import ThemeManager
 from tools.tool_checksum import ChecksumCalculator
 from tools.tool_converter import DataConverter
 from system.memory_optimizer import get_ultra_memory_manager
+from core.terminal_buffer import TerminalBufferManager
+from core.tool_manager import ToolManager
 
 logger = logging.getLogger("CrazySerialTerm")
+
+class SendWorker(QThread):
+    """
+    Thread d'envoi asynchrone pour la communication série.
+    """
+    finished = pyqtSignal(bool, str, str)
+
+    def __init__(self, serial_manager: RobustSerialManager, data: str, format_type: str, eol: str) -> None:
+        """
+        Initialise le thread d'envoi.
+        """
+        super().__init__()
+        self.serial_manager = serial_manager
+        self.data = data
+        self.format_type = format_type
+        self.eol = eol
+
+    def run(self) -> None:
+        """
+        Exécute l'envoi asynchrone.
+        """
+        try:
+            success = self.serial_manager.format_and_send(self.data, self.format_type, self.eol)
+            self.finished.emit(success, "", self.data)
+        except Exception as e:
+            self.finished.emit(False, str(e), self.data)
 
 class Terminal(QMainWindow):
     """
@@ -63,7 +91,8 @@ class Terminal(QMainWindow):
         # Configuration de base
         self.command_history: List[str] = []
         self.history_index: int = -1
-        self.settings = QSettings("SerialTerminal", "Settings")
+        # self.settings = QSettings("SerialTerminal", "Settings")
+        self.settings = SettingsManager
         self.log_file = None
         self.rx_bytes_count: int = 0
         self.tx_bytes_count: int = 0
@@ -79,7 +108,10 @@ class Terminal(QMainWindow):
         self.tab_widget: Optional[Any] = None
         
         # Thème actuel
+        self.theme_manager = ThemeManager(self.terminal_output)
         self.current_theme = 'sombre'  # Thème par défaut
+        # Buffer manager pour le terminal
+        self.terminal_buffer = None
         
         # Timer ultra-optimisé pour flush
         self._ultra_flush_timer = QTimer()
@@ -89,9 +121,8 @@ class Terminal(QMainWindow):
         # Limite stricte de mémoire
         self._max_terminal_chars = 30000  # Limite ultra-stricte
         
-        # Outils
-        self.checksum_calculator = ChecksumCalculator()
-        self.data_converter = DataConverter()
+        # Outils (instanciation unique, parenté correcte)
+        self.tool_manager = ToolManager(self)
         
         # Timer pour l'envoi répété
         self.repeat_timer = QTimer()
@@ -113,7 +144,7 @@ class Terminal(QMainWindow):
         self.load_settings()
 
         # Appliquer les couleurs du terminal après initialisation
-        self.apply_terminal_colors()
+        self.theme_manager.apply_theme(self.current_theme)
 
         # Affichage de la fenêtre
         self.show()
@@ -126,35 +157,35 @@ class Terminal(QMainWindow):
         """
         self.setWindowTitle("CrazySerialTerm - Terminal Série")
         self.setGeometry(100, 100, 1200, 800)
-        
         # Widget central avec onglets
         self.tab_widget = QTabWidget()
         self.setCentralWidget(self.tab_widget)
         # Création explicite de la barre de menu (robustesse PyQt)
         if self.menuBar() is None:
             self.setMenuBar(QMenuBar(self))
-        
         # Onglet principal avec terminal série
         main_widget = QWidget()
         main_layout = QVBoxLayout(main_widget)
-        
         # Panneau de connexion série
         self.serial_panel = ConnectionPanel()
         main_layout.addWidget(self.serial_panel)
-        
         # Sortie du terminal
         self.terminal_output = QTextEdit()
         self.terminal_output.setReadOnly(True)
         self.terminal_output.setFont(QFont("Consolas", 10))
         main_layout.addWidget(self.terminal_output)
+        # Initialisation du buffer du terminal (corrige NoneType)
+        self.terminal_buffer = TerminalBufferManager(self.terminal_output)
+        # Synchronisation du buffer avec le ThemeManager
+        self.terminal_output.terminal_buffer = self.terminal_buffer
+        # Mettre à jour la référence terminal_output dans ThemeManager
+        self.theme_manager.terminal_output = self.terminal_output
         
         # Panneau d'entrée
         self.input_panel = InputPanel()
         main_layout.addWidget(self.input_panel)
-        
         # Ajouter l'onglet principal
         self.tab_widget.addTab(main_widget, "🔌 Terminal Série")
-        
         # Onglet des paramètres avancés (créé mais pas encore ajouté)
         self.advanced_panel = AdvancedSettingsPanel()
         self.settings_tab_visible = False  # État par défaut : masqué
@@ -210,13 +241,13 @@ class Terminal(QMainWindow):
         if themes_menu is None:
             raise RuntimeError("Impossible de créer le menu 'Thèmes' (QMenu)")
         light_theme_action = QAction('Thème clair', self)
-        light_theme_action.triggered.connect(lambda: self.apply_theme('clair'))
+        light_theme_action.triggered.connect(lambda: self.change_theme('clair'))
         themes_menu.addAction(light_theme_action)
         dark_theme_action = QAction('Thème sombre', self)
-        dark_theme_action.triggered.connect(lambda: self.apply_theme('sombre'))
+        dark_theme_action.triggered.connect(lambda: self.change_theme('sombre'))
         themes_menu.addAction(dark_theme_action)
         hacker_theme_action = QAction('Thème hacker', self)
-        hacker_theme_action.triggered.connect(lambda: self.apply_theme('hacker'))
+        hacker_theme_action.triggered.connect(lambda: self.change_theme('hacker'))
         themes_menu.addAction(hacker_theme_action)
         view_menu.addSeparator()
         font_action = QAction('Changer la police du terminal...', self)
@@ -230,12 +261,28 @@ class Terminal(QMainWindow):
         tools_menu = menubar.addMenu('Outils')
         if tools_menu is None:
             raise RuntimeError("Impossible de créer le menu 'Outils' (QMenu)")
-        checksum_action = QAction('Calculateur de Checksum', self)
-        checksum_action.triggered.connect(self.show_checksum_calculator)
-        tools_menu.addAction(checksum_action)
-        converter_action = QAction('Convertisseur de Données', self)
-        converter_action.triggered.connect(self.show_data_converter)
-        tools_menu.addAction(converter_action)
+        # --- Menu Outils dynamique amélioré ---
+        from PyQt5.QtWidgets import QMessageBox
+        # Tri alphabétique des outils
+        for tool_name in sorted(self.tool_manager.tools.keys()):
+            tool_instance = self.tool_manager.tools[tool_name]
+            display_name = tool_name.replace('tool_', '').replace('_', ' ').capitalize()
+            action = QAction(display_name, self)
+            if hasattr(tool_instance, 'show'):
+                action.triggered.connect(tool_instance.show)
+            else:
+                def show_error(name: str = display_name) -> None:
+                    """
+                    Affiche un message d'erreur si l'outil ne possède pas de fenêtre graphique.
+                    Args:
+                        name (str): Nom de l'outil.
+                    Returns:
+                        None
+                    """
+                    QMessageBox.warning(self, "Outil non disponible", f"L’outil '{name}' ne possède pas de fenêtre graphique (méthode show absente).")
+                action.triggered.connect(show_error)
+            tools_menu.addAction(action)
+        # --- Fin menu Outils dynamique amélioré ---
     
     def setupStatusBar(self) -> None:
         """
@@ -314,104 +361,122 @@ class Terminal(QMainWindow):
     def send_data(self, data: str, format_type: str = 'text') -> None:
         """
         Envoie des données via la connexion série.
+        Toute la logique de formatage (EOL, hex/text) est désormais gérée côté communication.
         Args:
             data (str): Données à envoyer.
             format_type (str): Format d'envoi ('text' ou 'hex').
         """
+        logger.info(f"[DEBUG] Slot send_data appelé avec data='{data}' format_type='{format_type}'")
         if not self.serial_manager.is_connected():
             self.append_text("[Système] Aucune connexion active\n", 'system')
             return
-        
         # Validation des données d'entrée
         if not data or not isinstance(data, str):
             self.append_text("[Système] Données invalides\n", 'error')
             return
-        
         if len(data) > 1024: # Limite de taille
             self.append_text("[Système] Données trop longues (max 1024 caractères)\n", 'error')
             return
-        
         try:
             # Récupérer les paramètres d'envoi avancés si activés
             if self.advanced_panel.send_group.isChecked():
                 send_settings = self.advanced_panel.get_send_settings()
-                # Utiliser le format défini dans les paramètres
                 format_type = send_settings.get('format', 'ASCII').lower()
-                if format_type == 'ascii':
-                    format_type = 'text'
-                elif format_type == 'hex':
-                    format_type = 'hex'
-                
-                # Ajouter la fin de ligne si définie
                 eol = send_settings.get('eol', 'Aucun')
-                if eol == 'NL':
-                    data += '\n'
-                elif eol == 'CR':
-                    data += '\r'
-                elif eol == 'NL+CR':
-                    data += '\r\n'
-            
-            # Convertir les données selon le format
-            if format_type == 'hex':
-                # Traitement hexadécimal
-                try:
-                    # Nettoyer la chaîne hex et la convertir en bytes
-                    hex_data = data.replace(' ', '').replace('0x', '')
-                    data_bytes = bytes.fromhex(hex_data)
-                except ValueError:
-                    self.append_text("Format hexadécimal invalide\n", 'error')
-                    return
             else:
-                # Format texte/ASCII
-                data_bytes = data.encode('utf-8')
-            
-            success = self.serial_manager.send_data(data_bytes)
-            if success:
-                # Mettre à jour le compteur d'octets envoyés
-                self.update_bytes_counter(sent=len(data_bytes))
-                
-                # Afficher les données envoyées avec le format de l'original (TX:)
-                timestamp = ""
-                if self.advanced_panel.display_group.isChecked():
-                    display_settings = self.advanced_panel.get_display_settings()
-                    if display_settings.get('timestamp', False):
-                        from datetime import datetime
-                        timestamp = f"[{datetime.now().strftime('%H:%M:%S')}] "
-                
-                display_data = data if format_type == 'text' else f"[{format_type.upper()}] {data}"
-                self.append_text(f"{timestamp}TX: {display_data}\n", 'sent')
-                
-                # Effacer le champ d'entrée après envoi
-                self.input_panel.clear_input()
-            else:
-                self.append_text("Échec de l'envoi des données\n", 'error')
+                format_type = 'text'
+                eol = 'Aucun'
+            # Utilisation d'un QThread pour l'envoi (formatage côté communication)
+            self.send_worker = SendWorker(self.serial_manager, data, format_type, eol)
+            self.send_worker.finished.connect(self._on_send_finished)
+            self.send_worker.start()
+            # Historique log si activé
+            self.log_terminal_event('envoyé', data)
         except Exception as e:
             self.append_text(f"Erreur d'envoi: {str(e)}\n", 'error')
             logger.error(f"Erreur d'envoi de données: {str(e)}")
+
+    def _on_send_finished(self, success: bool, error_msg: str, data: str) -> None:
+        """
+        Slot appelé à la fin de l'envoi asynchrone de données.
+        Affiche le résultat dans le terminal et efface la barre d'envoi.
+        Args:
+            success (bool): Statut de l'envoi.
+            error_msg (str): Message d'erreur éventuel.
+            data (str): Données envoyées.
+        Returns:
+            None
+        """
+        if not success:
+            self.append_text(f"Échec de l'envoi des données: {error_msg}\n", 'error')
+        else:
+            self.append_text(data, 'sent')
+        # Efface la barre d'envoi après chaque commande
+        if self.input_panel:
+            self.input_panel.clear_input()
+        self.send_worker = None
+        logger.info(f"[DEBUG] Slot _on_send_finished appelé, success={success}, error_msg='{error_msg}'")
+    
+    def on_connection_changed(self, connected: bool) -> None:
+        """
+        Slot appelé lors d'un changement d'état de connexion série.
+        """
+        self.update_connection_status(connected)
+
+    def on_data_received(self, data: bytes) -> None:
+        """
+        Slot appelé lors de la réception de données sur le port série.
+        Args:
+            data (bytes): Données reçues.
+        """
+        logger.info(f"[DEBUG] Slot on_data_received appelé, {len(data)} octets reçus")
+        try:
+            # Décodage et nettoyage
+            text = data.decode('utf-8', errors='replace')
+            clean_text = self.clean_received_text(text)
+            self.append_text(clean_text, 'received')
+            # Mise à jour des statistiques
+            if hasattr(self, 'update_bytes_counter'):
+                self.update_bytes_counter(received=len(data))
+            self.log_terminal_event('reçu', clean_text)
+        except Exception as e:
+            logger.error(f"Erreur lors du traitement des données reçues: {e}")
+
+    def on_error_occurred(self, error_message: str) -> None:
+        """
+        Slot appelé lors d'une erreur série.
+        """
+        self.append_text(f"[Erreur] {error_message}\n", 'error')
+
+    def on_statistics_updated(self, stats: dict) -> None:
+        """
+        Slot appelé lors de la mise à jour des statistiques série.
+        """
+        rx = stats.get('rx_bytes', 0) if isinstance(stats, dict) else 0
+        tx = stats.get('tx_bytes', 0) if isinstance(stats, dict) else 0
+        if hasattr(self, 'bytes_label') and self.bytes_label:
+            self.bytes_label.setText(f"Octets: {tx} ↑ / {rx} ↓")
+        else:
+            logger.warning("bytes_label absent lors de la mise à jour des statistiques")
     
     # Correction des signatures et docstrings pour les dernières méthodes publiques
     def on_data_received(self, data: bytes) -> None:
         """
-        Traite les données reçues du port série.
+        Slot appelé lors de la réception de données sur le port série.
         Args:
             data (bytes): Données reçues.
-        Returns:
-            None
         """
+        logger.info(f"[DEBUG] Slot on_data_received appelé, {len(data)} octets reçus")
         try:
-            # Décodage des données
-            text: str = data.decode('utf-8', errors='replace')
-
-            # Nettoyage complet du texte
-            clean_text: str = self.clean_received_text(text)
-
-            # Afficher le texte reçu directement sans préfixe, comme dans l'original
+            # Décodage et nettoyage
+            text = data.decode('utf-8', errors='replace')
+            clean_text = self.clean_received_text(text)
             self.append_text(clean_text, 'received')
-
             # Mise à jour des statistiques
-            self.update_bytes_counter(received=len(data))
+            if hasattr(self, 'update_bytes_counter'):
+                self.update_bytes_counter(received=len(data))
         except Exception as e:
-            logger.error(f"Erreur de traitement des données reçues: {str(e)}")
+            logger.error(f"Erreur lors du traitement des données reçues: {e}")
             raise
 
     def clean_received_text(self, text: str) -> str:
@@ -435,496 +500,145 @@ class Terminal(QMainWindow):
             text = text.replace(char, '')
         
         # Supprimer les séquences d'échappement ANSI courantes
-        # Supprimer les séquences d'échappement ANSI (comme \x1b[...)
         text = re.sub(r'\x1b\[[0-9;]*[mK]', '', text)
         
         return text
 
-    def on_connection_changed(self, connected: bool) -> None:
+    def update_connection_status(self, connected: bool) -> None:
         """
-        Traite le changement d'état de connexion série.
+        Met à jour l'affichage et l'état de la connexion série dans la barre de statut et le panneau de connexion.
         Args:
-            connected (bool): État de connexion.
+            connected (bool): True si connecté, False sinon.
         Returns:
             None
         """
         try:
+            palette = self.connection_status_label.palette()
             if connected:
                 self.connection_status_label.setText("Connecté")
-                self.connection_status_label.setStyleSheet("color: green;")
+                palette.setColor(self.connection_status_label.foregroundRole(), QColor('green'))
+                self.connection_status_label.setPalette(palette)
                 port = self.serial_panel.get_connection_params()['port']
                 self.port_label.setText(f"Port: {port}")
-                # Mettre à jour le bouton dans le panneau série
                 self.serial_panel.set_connected(True)
             else:
                 self.connection_status_label.setText("Déconnecté")
-                self.connection_status_label.setStyleSheet("color: red;")
+                palette.setColor(self.connection_status_label.foregroundRole(), QColor('red'))
+                self.connection_status_label.setPalette(palette)
                 self.port_label.setText("Aucun port")
-                # Mettre à jour le bouton dans le panneau série
                 self.serial_panel.set_connected(False)
-                # Rafraîchir la liste des ports en cas de déconnexion
                 self.refresh_ports()
-                
             logger.info(f"État de connexion mis à jour: {'Connecté' if connected else 'Déconnecté'}")
-            
         except Exception as e:
             logger.error(f"Erreur lors de la mise à jour de l'état de connexion: {e}")
 
-    def on_error_occurred(self, error_message: str) -> None:
+    def change_theme(self, theme_name: str) -> None:
         """
-        Traite les erreurs du gestionnaire série.
-        Args:
-            error_message (str): Message d'erreur.
-        Returns:
-            None
-        """
-        self.append_text(f"[Erreur] {error_message}\n", 'error')
-        logger.error(f"Erreur série: {error_message}")
-
-    def on_statistics_updated(self, stats: Dict[str, Any]) -> None:
-        """
-        Met à jour les statistiques affichées dans l'interface.
-        Args:
-            stats (Dict[str, Any]): Dictionnaire contenant les statistiques à afficher.
-        Returns:
-            None
+        Change le thème de l'application via ThemeManager.
         """
         try:
-            rx_bytes: int = int(stats.get('rx_bytes', 0))
-            tx_bytes: int = int(stats.get('tx_bytes', 0))
-            uptime: int = int(stats.get('uptime', 0))
-            
-            # Synchroniser nos compteurs locaux avec ceux du gestionnaire
-            self.rx_bytes_count = rx_bytes
-            self.tx_bytes_count = tx_bytes
-            
-            # Mettre à jour l'affichage
-            uptime_str = f"{int(uptime//3600):02d}:{int((uptime%3600)//60):02d}:{int(uptime%60):02d}"
-            
-            self.bytes_label.setText(f"Octets: {tx_bytes} ↑ / {rx_bytes} ↓ | Durée: {uptime_str}")
-            
+            self.theme_manager.apply_theme(theme_name)
+            self.current_theme = theme_name
+            # Synchronise le buffer du terminal avec le nouveau thème
+            if hasattr(self, 'terminal_buffer') and self.terminal_buffer:
+                self.terminal_buffer.set_theme(theme_name)
+            self.refresh_terminal_display()  # Forcer le rafraîchissement
+            self.settings.save_setting('theme', theme_name)  # Persistance via JSON
+            logger.info(f"Thème changé: {theme_name}")
         except Exception as e:
-            logger.error(f"Erreur lors de la mise à jour des statistiques : {str(e)}")
-            raise
+            logger.error(f"Erreur lors du changement de thème: {e}")
 
-    def refresh_ports(self) -> None:
+    def apply_terminal_colors(self) -> None:
         """
-        Rafraîchit la liste des ports série disponibles.
-        Returns:
-            None
+        Applique les couleurs du terminal via ThemeManager.
         """
         try:
-            ports = self.serial_manager.get_available_ports()
-            self.serial_panel.update_ports(ports)
+            self.theme_manager.apply_theme(self.current_theme)
         except Exception as e:
-            logger.error(f"Erreur lors du rafraîchissement des ports: {str(e)}")
+            logger.error(f"Erreur lors de l'application des couleurs: {e}")
 
-    def clear_terminal(self) -> None:
+    def refresh_terminal_display(self) -> None:
         """
-        Efface le contenu du terminal et optimise la mémoire.
-        Returns:
-            None
-        """
-        if self.terminal_output:
-            try:
-                # 1. Arrêter temporairement le timer de flush
-                if hasattr(self, '_update_timer') and self._update_timer.isActive():
-                    self._update_timer.stop()
-                
-                # 2. Vider complètement le buffer sans traitement
-                if hasattr(self, '_pending_text_buffer'):
-                    self._pending_text_buffer.clear()
-                
-                # 3. Nettoyage ultra-complet du document
-                doc = self.terminal_output.document()
-                doc.clear()  # Plus efficace que terminal_output.clear()
-                
-                # 4. Réinitialiser le pool de curseurs
-                self._cursor_pool = None
-                self._last_cursor_position = 0
-                
-                # 5. Nettoyer complètement le cache de formats
-                if hasattr(self, '_text_format_cache'):
-                    self._text_format_cache.clear()
-                
-                # 6. Reset compteur d'objets
-                self._object_creation_count = 0
-                
-                # 7. Forcer garbage collection intensif
-                import gc
-                for _ in range(3):
-                    gc.collect()
-                
-                # 8. Redémarrer le timer
-                if hasattr(self, '_update_timer'):
-                    self._update_timer.start(100)
-                
-                # 9. Ajouter le message de nettoyage (en direct, pas de batching)
-                cursor = self.terminal_output.textCursor()
-                cursor.movePosition(QTextCursor.End)
-                format_obj = self._get_cached_format('system')
-                cursor.setCharFormat(format_obj)
-                cursor.insertText("[Système] Terminal effacé - Mémoire optimisée\n")
-                
-                logger.debug("Nettoyage mémoire ultra-complet effectué")
-                
-            except Exception as e:
-                logger.error(f"Erreur nettoyage ultra-complet: {e}")
-                # Fallback: nettoyage basique
-                try:
-                    self.terminal_output.clear()
-                    if hasattr(self, '_text_format_cache'):
-                        self._text_format_cache.clear()
-                    if hasattr(self, '_pending_text_buffer'):
-                        self._pending_text_buffer.clear()
-                except:
-                    pass
-    
-    def _direct_append_text(self, text: str, color: str = 'text') -> None:
-        """
-        Ajoute du texte directement dans le terminal sans buffer.
-        Args:
-            text (str): Texte à ajouter.
-            color (str): Couleur à utiliser.
-        Returns:
-            None
-        """
-        if not self.terminal_output:
-            return
-        try:
-            cursor = self.terminal_output.textCursor()
-            cursor.movePosition(QTextCursor.End)
-            # Appliquer la couleur
-            if hasattr(self, '_text_format_cache') and color in self._text_format_cache:
-                cursor.setCharFormat(self._text_format_cache[color])
-            cursor.insertText(text)
-            self.terminal_output.setTextCursor(cursor)
-            self.terminal_output.ensureCursorVisible()
-        except Exception as e:
-            logger.error(f"Erreur dans _direct_append_text: {e}")
-
-    def _flush_text_buffer(self) -> None:
-        """
-        Flush le buffer de texte avec gestion mémoire ultra-optimisée.
-        Returns:
-            None
-        """
-        if not self._pending_text_buffer or not self.terminal_output:
-            return
-        try:
-            # Surveillance proactive de la mémoire
-            self._monitor_memory_usage()
-            # Utilisation d'un curseur réutilisable
-            if not self._cursor_pool:
-                self._cursor_pool = self.terminal_output.textCursor()
-            cursor = self._cursor_pool
-            cursor.movePosition(QTextCursor.End)
-            # Optimisation: une seule transaction pour tout le batch
-            cursor.beginEditBlock()
-            try:
-                # Traitement ultra-optimisé
-                current_format = None
-                for text, color in self._pending_text_buffer:
-                    # Optimisation: ne changer le format que si nécessaire
-                    new_format = self._get_cached_format(color)
-                    if new_format != current_format:
-                        cursor.setCharFormat(new_format)
-                        current_format = new_format
-                    cursor.insertText(text)
-                    self._object_creation_count += 1
-            finally:
-                cursor.endEditBlock()
-            # Mise à jour du curseur position (optimisation)
-            self._last_cursor_position = cursor.position()
-            self.terminal_output.setTextCursor(cursor)
-            self.terminal_output.ensureCursorVisible()
-            # Nettoyage du buffer
-            self._pending_text_buffer.clear()
-        except Exception as e:
-            logger.error(f"Erreur dans flush_text_buffer optimisé: {e}")
-            self._pending_text_buffer.clear()
-
-    def _monitor_memory_usage(self) -> None:
-        """
-        Surveillance et nettoyage proactif de la mémoire.
-        Returns:
-            None
+        Force la mise à jour visuelle du terminal avec les nouvelles couleurs via ThemeManager.
         """
         try:
-            # Vérifier la taille du document
-            if self.terminal_output:
-                doc = self.terminal_output.document()
-                char_count = doc.characterCount()
-                # Nettoyage agressif si nécessaire
-                if char_count > self._max_terminal_chars * self._cleanup_threshold:
-                    self._aggressive_cleanup()
-                # Nettoyage du cache si trop gros
-                if len(self._text_format_cache) > 10:
-                    self._cleanup_format_cache()
+            self.theme_manager.refresh_terminal_display(self.current_theme)
         except Exception as e:
-            logger.debug(f"Erreur monitoring mémoire: {e}")
+            logger.error(f"Erreur lors de la mise à jour du terminal: {e}")
 
-    def _aggressive_cleanup(self) -> None:
+    def apply_theme(self, theme_name: str) -> None:
         """
-        Nettoyage agressif pour libérer la mémoire.
-        Returns:
-            None
+        Applique un thème à l'application via ThemeManager.
         """
-        try:
-            if not self.terminal_output:
-                return
-            # Sauvegarder seulement les dernières lignes importantes
-            doc = self.terminal_output.document()
-            total_blocks = doc.blockCount()
-            if total_blocks > 200:  # Très agressif
-                # Supprimer tout et garder seulement un message
-                self.terminal_output.clear()
-                # Nettoyer le cache
-                self._text_format_cache.clear()
-                self._cursor_pool = None
-                # Message de nettoyage
-                self._add_single_text("[Système] Nettoyage mémoire automatique effectué\n", 'system')
-                # Forcer garbage collection
-                import gc
-                gc.collect()
-                logger.debug("Nettoyage agressif effectué")
-        except Exception as e:
-            logger.error(f"Erreur nettoyage agressif: {e}")
+        self.change_theme(theme_name)
 
-    def _cleanup_format_cache(self) -> None:
-        """
-        Nettoie le cache de formats en gardant seulement les essentiels.
-        Returns:
-            None
-        """
-        try:
-            # Garder seulement les formats du thème actuel
-            current_theme_keys = [k for k in self._text_format_cache.keys() 
-                                if k.startswith(f"{self.current_theme}_")]
-            # Nettoyer les anciens formats
-            self._text_format_cache = {k: v for k, v in self._text_format_cache.items() 
-                                     if k in current_theme_keys[:5]}  # Max 5 formats
-            logger.debug(f"Cache formats nettoyé: {len(self._text_format_cache)} formats restants")
-        except Exception as e:
-            logger.debug(f"Erreur nettoyage cache: {e}")
-
-    def _get_cached_format(self, color: str) -> QTextCharFormat:
-        """
-        Obtient un format depuis le cache ou le crée.
-        Args:
-            color (str): Couleur à utiliser.
-        Returns:
-            QTextCharFormat: Format de texte PyQt5.
-        """
-        cache_key = f"{self.current_theme}_{color}"
-        if cache_key not in self._text_format_cache:
-            format_obj = QTextCharFormat()
-            # Couleur unique selon le thème actuel
-            if self.current_theme == 'hacker':
-                format_obj.setForeground(QColor(0, 255, 0))  # Vert
-            elif self.current_theme == 'clair':
-                format_obj.setForeground(QColor(0, 0, 0))    # Noir
-            else:  # sombre ou par défaut
-                format_obj.setForeground(QColor(255, 255, 255))  # Blanc
-            self._text_format_cache[cache_key] = format_obj
-        return self._text_format_cache[cache_key]
-
-    def _add_single_text(self, text: str, color: str = 'text') -> None:
-        """
-        Ajoute un texte unique immédiatement sans batching.
-        Args:
-            text (str): Texte à ajouter.
-            color (str): Couleur à utiliser.
-        Returns:
-            None
-        """
-        if not self.terminal_output:
-            return
-        cursor = self.terminal_output.textCursor()
-        cursor.movePosition(QTextCursor.End)
-        format_obj = self._get_cached_format(color)
-        cursor.setCharFormat(format_obj)
-        cursor.insertText(text)
-        self.terminal_output.setTextCursor(cursor)
-        self.terminal_output.ensureCursorVisible()
-
-    def append_text(self, text: str, color: str = 'text') -> None:
-        """
-        Ajoute du texte coloré au terminal avec gestionnaire mémoire ultra.
-        Args:
-            text (str): Texte à ajouter.
-            color (str): Couleur à utiliser.
-        Returns:
-            None
-        """
-        try:
-            # Utiliser le gestionnaire mémoire ultra pour le batching
-            # Le gestionnaire ultra ne supporte que le texte simple, donc on formatera après
-            should_flush = self.ultra_memory.add_to_buffer(text)
-            # Stocker la couleur pour le flush
-            if not hasattr(self, '_color_buffer'):
-                self._color_buffer = []
-            self._color_buffer.append(color)
-            # Auto-flush si le buffer devient trop grand ou si demandé
-            if should_flush:
-                self._ultra_flush_buffer()
-        except Exception as e:
-            # Fallback: ajout direct si problème avec le gestionnaire mémoire
-            self._direct_append_text(text, color)
-    
-    def select_font(self) -> None:
-        """
-        Ouvre le dialogue de sélection de police.
-        Returns:
-            None
-        """
-        font, ok = QFontDialog.getFont(self.terminal_output.font(), self)
-        if ok:
-            self.terminal_output.setFont(font)
-            # Sauvegarder la police sélectionnée
-            self.settings_manager.save_setting('terminal_font', font.toString())
-            logger.info(f"Police changée: {font.family()} {font.pointSize()}pt")
-
-    def show_checksum_calculator(self) -> None:
-        """
-        Affiche le calculateur de checksum.
-        Returns:
-            None
-        """
-        self.checksum_calculator.show()
-
-    def show_data_converter(self) -> None:
-        """
-        Affiche le convertisseur de données.
-        Returns:
-            None
-        """
-        self.data_converter.show()
-
-    def update_bytes_counter(self, sent: int = 0, received: int = 0) -> None:
-        """
-        Met à jour le compteur d'octets de manière cumulative.
-        Args:
-            sent (int): Octets envoyés à ajouter.
-            received (int): Octets reçus à ajouter.
-        Returns:
-            None
-        """
-        try:
-            self.tx_bytes_count += sent
-            self.rx_bytes_count += received
-            self.bytes_label.setText(f"Octets: {self.tx_bytes_count} ↑ / {self.rx_bytes_count} ↓")
-        except Exception as e:
-            logger.error(f"Erreur mise à jour compteur: {str(e)}")
-    
     def load_settings(self) -> None:
         """
-        Charge les paramètres sauvegardés.
-        Returns:
-            None
+        Charge tous les paramètres utilisateur (thème, UI, groupes, options avancées, taille/fenêtre, police, panneaux) depuis le JSON centralisé.
         """
         try:
-            settings = self.settings_manager.load_all_settings()
-            if settings:
-                # Appliquer le thème
-                theme = settings.get('theme', 'sombre')
-                if theme in ['clair', 'sombre', 'hacker']:
-                    self.change_theme(theme)
-                
-                # Restaurer la géométrie de la fenêtre
-                if 'window_geometry' in settings:
-                    self.restoreGeometry(settings['window_geometry'])
-                
-                # Restaurer la police du terminal
-                if 'terminal_font' in settings:
-                    font = QFont()
-                    font.fromString(settings['terminal_font'])
-                    self.terminal_output.setFont(font)
-                
-                # Restaurer la visibilité de l'onglet des paramètres
-                settings_tab_visible = settings.get('settings_tab_visible', False)  # Défaut : masqué
-                # Convertir en booléen si c'est une chaîne (problème de sérialisation QSettings)
-                if isinstance(settings_tab_visible, str):
-                    settings_tab_visible = settings_tab_visible.lower() == 'true'
-                
-                logger.debug(f"Chargement paramètres - settings_tab_visible: {settings_tab_visible} (type: {type(settings_tab_visible)})")
-                self.settings_tab_visible = settings_tab_visible
-                
-                if settings_tab_visible:
-                    # Ajouter l'onglet des paramètres s'il doit être visible
-                    self.settings_tab_index = self.tab_widget.addTab(self.advanced_panel, "⚙️ Paramètres")
-                    self.toggle_settings_tab_action.setChecked(True)
-                    self.toggle_settings_tab_action.setText('Masquer l\'onglet paramètres')
-                else:
-                    # L'onglet reste masqué
-                    self.toggle_settings_tab_action.setChecked(False)
-                    self.toggle_settings_tab_action.setText('Afficher l\'onglet paramètres')
-                
-                # Restaurer la visibilité du panneau d'envoi
-                send_panel_visible = settings.get('send_panel_visible', True)  # Défaut : visible
-                # Convertir en booléen si c'est une chaîne (problème de sérialisation QSettings)
-                if isinstance(send_panel_visible, str):
-                    send_panel_visible = send_panel_visible.lower() == 'true'
-                
-                self.input_panel.setVisible(send_panel_visible)
-                
-                if send_panel_visible:
-                    self.toggle_send_panel_action.setChecked(True)
-                    self.toggle_send_panel_action.setText('Masquer le panneau d\'envoi')
-                else:
-                    self.toggle_send_panel_action.setChecked(False)
-                    self.toggle_send_panel_action.setText('Afficher le panneau d\'envoi')
-                
-                logger.info("Paramètres chargés avec succès")
-            else:
-                # Première utilisation - valeurs par défaut
-                self.settings_tab_visible = False
-                self.toggle_settings_tab_action.setChecked(False)
-                self.toggle_settings_tab_action.setText('Afficher l\'onglet paramètres')
-                
-                # Panneau d'envoi visible par défaut
-                if self.input_panel:
-                    self.input_panel.setVisible(True)
-                    self.toggle_send_panel_action.setChecked(True)
-                    self.toggle_send_panel_action.setText('Masquer le panneau d\'envoi')
-                
-                logger.info("Première utilisation - paramètres par défaut appliqués")
-                    
-        except Exception as e:
-            logger.error(f"Erreur lors du chargement des paramètres: {str(e)}")
-            # Appliquer le thème par défaut en cas d'erreur
-            self.change_theme('sombre')
-            # État par défaut en cas d'erreur
-            if not hasattr(self, 'settings_tab_visible'):
-                self.settings_tab_visible = False
-                self.toggle_settings_tab_action.setChecked(False)
-                self.toggle_settings_tab_action.setText('Afficher l\'onglet paramètres')
-            
-            # Panneau d'envoi visible par défaut en cas d'erreur
+            # Thème
+            theme = self.settings.load_setting('theme', 'sombre')
+            if theme in ['clair', 'sombre', 'hacker']:
+                self.change_theme(theme)
+            # Paramètres avancés (groupes, options, log...)
+            advanced_settings = self.settings.load_setting('advanced_settings', None)
+            if advanced_settings and self.advanced_panel:
+                self.advanced_panel.set_all_settings(advanced_settings)
+            # Visibilité des panneaux
+            send_panel_visible = self.settings.load_setting('send_panel_visible', True)
             if self.input_panel:
-                self.input_panel.setVisible(True)
-                self.toggle_send_panel_action.setChecked(True)
-                self.toggle_send_panel_action.setText('Masquer le panneau d\'envoi')
-    
+                self.input_panel.setVisible(send_panel_visible)
+                # Synchroniser la case à cocher avec la visibilité réelle
+                if self.toggle_send_panel_action:
+                    self.toggle_send_panel_action.setChecked(send_panel_visible)
+                    if send_panel_visible:
+                        self.toggle_send_panel_action.setText('Masquer le panneau d\'envoi')
+                    else:
+                        self.toggle_send_panel_action.setText('Afficher le panneau d\'envoi')
+            if self.advanced_panel:
+                settings_tab_visible = advanced_settings.get('settings_tab_visible', False) if advanced_settings else False
+                if settings_tab_visible and not self.settings_tab_visible:
+                    self.toggle_settings_tab_visibility()
+                elif not settings_tab_visible and self.settings_tab_visible:
+                    self.toggle_settings_tab_visibility()
+            # Taille et position de la fenêtre
+            geometry = self.settings.load_setting('window_geometry', None)
+            if geometry:
+                self.setGeometry(*geometry)
+            # Police du terminal
+            font_data = self.settings.load_setting('terminal_font', None)
+            if font_data and self.terminal_output:
+                font = QFont(font_data.get('family', 'Consolas'), font_data.get('size', 10))
+                self.terminal_output.setFont(font)
+        except Exception as e:
+            logger.error(f"Erreur lors du chargement des paramètres: {e}")
+
     def save_settings(self) -> None:
         """
-        Sauvegarde les paramètres actuels.
-        Returns:
-            None
+        Sauvegarde tous les paramètres utilisateur (thème, UI, groupes, options avancées, taille/fenêtre, police, panneaux) dans le JSON centralisé.
         """
         try:
-            settings = {
-                'window_geometry': self.saveGeometry(),
-                'terminal_font': self.terminal_output.font().toString(),
-                'theme': getattr(self, 'current_theme', 'sombre'),
-                'settings_tab_visible': getattr(self, 'settings_tab_visible', False),
-                'send_panel_visible': self.input_panel.isVisible() if self.input_panel else True
-            }
-            logger.debug(f"Sauvegarde paramètres - settings_tab_visible: {settings['settings_tab_visible']} (type: {type(settings['settings_tab_visible'])})")
-            self.settings_manager.save_all_settings(settings)
-            logger.info("Paramètres sauvegardés avec succès")
+            self.settings.save_setting('theme', getattr(self, 'current_theme', 'sombre'))
+            # Paramètres avancés (groupes, options, log...)
+            if self.advanced_panel:
+                advanced_settings = self.advanced_panel.get_all_settings()
+                # Sauvegarder la visibilité de l'onglet paramètres
+                advanced_settings['settings_tab_visible'] = self.settings_tab_visible
+                self.settings.save_setting('advanced_settings', advanced_settings)
+            # Visibilité du panneau d'envoi
+            if self.input_panel:
+                self.settings.save_setting('send_panel_visible', self.input_panel.isVisible())
+            # Taille et position de la fenêtre
+            geometry = (self.x(), self.y(), self.width(), self.height())
+            self.settings.save_setting('window_geometry', geometry)
+            # Police du terminal
+            if self.terminal_output:
+                font = self.terminal_output.font()
+                font_data = {'family': font.family(), 'size': font.pointSize()}
+                self.settings.save_setting('terminal_font', font_data)
         except Exception as e:
-            logger.error(f"Erreur lors de la sauvegarde des paramètres: {str(e)}")
+            logger.error(f"Erreur lors de la sauvegarde des paramètres: {e}")
     
     def closeEvent(self, event: QCloseEvent) -> None:
         """
@@ -1107,167 +821,41 @@ class Terminal(QMainWindow):
     
     def change_theme(self, theme_name: str) -> None:
         """
-        Change le thème de l'application.
-        Args:
-            theme_name (str): Nom du thème à appliquer.
-        Returns:
-            None
+        Change le thème de l'application via ThemeManager.
         """
         try:
-            from interface.theme_manager import apply_theme
-            apply_theme(theme_name)
+            self.theme_manager.apply_theme(theme_name)
             self.current_theme = theme_name
-            # Appliquer les couleurs du terminal
-            self.apply_terminal_colors()
-            # Forcer la mise à jour visuelle du terminal
-            self.refresh_terminal_display()
+            # Synchronise le buffer du terminal avec le nouveau thème
+            if hasattr(self, 'terminal_buffer') and self.terminal_buffer:
+                self.terminal_buffer.set_theme(theme_name)
+            self.refresh_terminal_display()  # Forcer le rafraîchissement
+            self.settings.save_setting('theme', theme_name)  # Persistance via JSON
             logger.info(f"Thème changé: {theme_name}")
         except Exception as e:
             logger.error(f"Erreur lors du changement de thème: {e}")
 
-    def refresh_terminal_display(self) -> None:
-        """
-        Force la mise à jour visuelle du terminal avec les nouvelles couleurs.
-        Returns:
-            None
-        """
-        try:
-            # Sauvegarder le contenu actuel
-            current_content = self.terminal_output.toPlainText()
-            if current_content:
-                # Effacer et réécrire le contenu pour appliquer les nouvelles couleurs
-                self.terminal_output.clear()
-                # Ajouter un message de changement de thème
-                self.append_text(f"[Système] Thème changé vers '{self.current_theme}'\n", 'system')
-                # Note: Le contenu précédent est perdu mais c'est acceptable pour un changement de thème
-        except Exception as e:
-            logger.error(f"Erreur lors de la mise à jour du terminal: {e}")
-
     def apply_terminal_colors(self) -> None:
         """
-        Applique les couleurs du terminal selon le thème actuel.
-        Returns:
-            None
+        Applique les couleurs du terminal via ThemeManager.
         """
         try:
-            if self.terminal_output:
-                # Définir les couleurs selon le thème
-                if self.current_theme == 'hacker':
-                    text_color = "#00ff00"  # Vert
-                    bg_color = "#000000"    # Noir
-                elif self.current_theme == 'clair':
-                    text_color = "#000000"  # Noir
-                    bg_color = "#ffffff"    # Blanc
-                else:  # sombre ou par défaut
-                    text_color = "#ffffff"  # Blanc
-                    bg_color = "#2a2a2a"    # Gris sombre
-                style = f"""
-                    QTextEdit {{
-                        background-color: {bg_color};
-                        color: {text_color};
-                        border: 1px solid #555;
-                        font-family: 'Consolas', 'Courier New', monospace;
-                    }}
-                """
-                self.terminal_output.setStyleSheet(style)
-                logger.debug(f"Couleurs appliquées pour thème '{self.current_theme}': texte={text_color}, fond={bg_color}")
-            else:
-                logger.warning("terminal_output non initialisé")
+            self.theme_manager.apply_theme(self.current_theme)
         except Exception as e:
             logger.error(f"Erreur lors de l'application des couleurs: {e}")
 
-    def change_font(self) -> None:
+    def refresh_terminal_display(self) -> None:
         """
-        Ouvre un dialogue pour changer la police du terminal.
-        Returns:
-            None
+        Force la mise à jour visuelle du terminal avec les nouvelles couleurs via ThemeManager.
         """
         try:
-            current_font = self.terminal_output.font() if self.terminal_output else QFont("Consolas", 10)
-            font, ok = QFontDialog.getFont(current_font, self, "Choisir la police du terminal")
-            if ok and self.terminal_output:
-                self.terminal_output.setFont(font)
-                logger.info(f"Police changée: {font.family()}, taille: {font.pointSize()}")
+            self.theme_manager.refresh_terminal_display(self.current_theme)
         except Exception as e:
-            logger.error(f"Erreur lors du changement de police: {str(e)}")
-
-    def toggle_send_panel_visibility(self) -> None:
-        """
-        Masque ou affiche le panneau d'envoi.
-        Returns:
-            None
-        """
-        try:
-            is_visible = self.input_panel.isVisible()
-            self.input_panel.setVisible(not is_visible)
-            # Mettre à jour le texte de l'action
-            if is_visible:
-                self.toggle_send_panel_action.setText('Afficher le panneau d\'envoi')
-            else:
-                self.toggle_send_panel_action.setText('Masquer le panneau d\'envoi')
-            # Sauvegarder les paramètres
-            self.save_settings()
-            logger.info(f"Panneau d'envoi {'masqué' if is_visible else 'affiché'}")
-        except Exception as e:
-            logger.error(f"Erreur lors du basculement du panneau d'envoi: {str(e)}")
-
-    def toggle_settings_tab_visibility(self) -> None:
-        """
-        Masque ou affiche l'onglet des paramètres.
-        Returns:
-            None
-        """
-        try:
-            if self.settings_tab_visible and self.settings_tab_index is not None:
-                # Masquer l'onglet des paramètres
-                self.tab_widget.removeTab(self.settings_tab_index)
-                self.toggle_settings_tab_action.setText('Afficher l\'onglet paramètres')
-                self.toggle_settings_tab_action.setChecked(False)
-                self.settings_tab_visible = False
-                self.settings_tab_index = None
-                logger.info("Onglet paramètres masqué")
-            else:
-                # Afficher l'onglet des paramètres
-                self.settings_tab_index = self.tab_widget.addTab(self.advanced_panel, "⚙️ Paramètres")
-                self.toggle_settings_tab_action.setText('Masquer l\'onglet paramètres')
-                self.toggle_settings_tab_action.setChecked(True)
-                self.settings_tab_visible = True
-                logger.info("Onglet paramètres affiché")
-            # Sauvegarder les paramètres
-            self.save_settings()
-        except Exception as e:
-            logger.error(f"Erreur lors du basculement de l'onglet paramètres: {str(e)}")
-
-    def setupShortcuts(self) -> None:
-        """
-        Configure les raccourcis clavier.
-        Returns:
-            None
-        """
-        # Cette méthode est appelée dans __init__ mais n'était pas définie
-        pass
-
-    def reset_config(self) -> None:
-        """
-        Réinitialise l'apparence au thème par défaut.
-        Returns:
-            None
-        """
-        try:
-            self.change_theme('sombre')
-            if self.terminal_output:
-                self.terminal_output.setFont(QFont("Consolas", 10))
-            logger.info("Configuration réinitialisée au thème sombre")
-        except Exception as e:
-            logger.error(f"Erreur lors de la réinitialisation: {str(e)}")
+            logger.error(f"Erreur lors de la mise à jour du terminal: {e}")
 
     def apply_theme(self, theme_name: str) -> None:
         """
-        Applique un thème à l'application.
-        Args:
-            theme_name (str): Nom du thème à appliquer.
-        Returns:
-            None
+        Applique un thème à l'application via ThemeManager.
         """
         self.change_theme(theme_name)
 
@@ -1295,4 +883,148 @@ class Terminal(QMainWindow):
         except Exception as e:
             logger.error(f"Erreur dans _ultra_flush_buffer: {e}")
 
-__all__ = []
+    def toggle_send_panel_visibility(self) -> None:
+        """
+        Masque ou affiche le panneau d'envoi.
+        """
+        try:
+            is_visible = self.input_panel.isVisible()
+            new_visible = not is_visible
+            self.input_panel.setVisible(new_visible)
+            # Synchroniser la case à cocher avec la visibilité réelle
+            if self.toggle_send_panel_action:
+                self.toggle_send_panel_action.setChecked(new_visible)
+                if new_visible:
+                    self.toggle_send_panel_action.setText('Masquer le panneau d\'envoi')
+                else:
+                    self.toggle_send_panel_action.setText('Afficher le panneau d\'envoi')
+            # Sauvegarder les paramètres
+            self.save_settings()
+            logger.info(f"Panneau d'envoi {'affiché' if new_visible else 'masqué'}")
+        except Exception as e:
+            logger.error(f"Erreur lors du basculement du panneau d'envoi: {str(e)}")
+
+    def toggle_settings_tab_visibility(self) -> None:
+        """
+        Masque ou affiche l'onglet des paramètres.
+        """
+        try:
+            if self.settings_tab_visible and self.settings_tab_index is not None:
+                # Masquer l'onglet des paramètres
+                self.tab_widget.removeTab(self.settings_tab_index)
+                self.toggle_settings_tab_action.setText('Afficher l\'onglet paramètres')
+                self.toggle_settings_tab_action.setChecked(False)
+                self.settings_tab_visible = False
+                self.settings_tab_index = None
+                logger.info("Onglet paramètres masqué")
+            else:
+                # Afficher l'onglet des paramètres
+                self.settings_tab_index = self.tab_widget.addTab(self.advanced_panel, "⚙️ Paramètres")
+                self.toggle_settings_tab_action.setText('Masquer l\'onglet paramètres')
+                self.toggle_settings_tab_action.setChecked(True)
+                self.settings_tab_visible = True
+                logger.info("Onglet paramètres affiché")
+            # Sauvegarder les paramètres
+            self.save_settings()
+        except Exception as e:
+            logger.error(f"Erreur lors du basculement de l'onglet paramètres: {str(e)}")
+
+    def reset_config(self) -> None:
+        """
+        Réinitialise l'apparence de l'application (thème sombre, police par défaut, onglet paramètres masqué).
+        """
+        try:
+            self.change_theme('sombre')
+            self.terminal_output.setFont(QFont("Consolas", 10))
+            if self.settings_tab_visible and self.settings_tab_index is not None:
+                self.tab_widget.removeTab(self.settings_tab_index)
+                self.settings_tab_visible = False
+                self.settings_tab_index = None
+                self.toggle_settings_tab_action.setChecked(False)
+                self.toggle_settings_tab_action.setText('Afficher l\'onglet paramètres')
+            self.save_settings()
+            logger.info("Apparence réinitialisée (thème sombre, police par défaut, onglet paramètres masqué)")
+        except Exception as e:
+            logger.error(f"Erreur lors de la réinitialisation de l'apparence: {e}")
+
+    def setupShortcuts(self) -> None:
+        """
+        Initialise les raccourcis clavier de l'application (placeholder).
+        """
+        pass
+
+    def clear_terminal(self) -> None:
+        """
+        Efface le contenu du terminal.
+        """
+        if hasattr(self, 'terminal_output') and self.terminal_output:
+            self.terminal_output.clear()
+        else:
+            logger.warning("terminal_output absent lors de l'effacement")
+
+    def change_font(self) -> None:
+        """
+        Ouvre une boîte de dialogue pour choisir la police du terminal.
+        """
+        from PyQt5.QtWidgets import QFontDialog
+        if hasattr(self, 'terminal_output') and self.terminal_output:
+            font, ok = QFontDialog.getFont(self.terminal_output.font(), self, "Choisir la police du terminal")
+            if ok:
+                self.terminal_output.setFont(font)
+        else:
+            logger.warning("terminal_output absent lors du changement de police")
+
+    def show_checksum_calculator(self) -> None:
+        """
+        Affiche la fenêtre du calculateur de checksum.
+        """
+        if hasattr(self, 'checksum_calculator') and self.checksum_calculator:
+            self.checksum_calculator.show()
+            self.checksum_calculator.raise_()
+            self.checksum_calculator.activateWindow()
+        else:
+            logger.error("ChecksumCalculator non instancié")
+
+    def show_data_converter(self) -> None:
+        """
+        Affiche la fenêtre du convertisseur de données.
+        """
+        if hasattr(self, 'data_converter') and self.data_converter:
+            self.data_converter.show()
+            self.data_converter.raise_()
+            self.data_converter.activateWindow()
+        else:
+            logger.error("DataConverter non instancié")
+
+    def refresh_ports(self) -> None:
+        """
+        Rafraîchit la liste des ports série disponibles dans le panneau de connexion.
+        """
+        if hasattr(self, 'serial_panel') and self.serial_panel and hasattr(self.serial_panel, 'refresh_ports'):
+            self.serial_panel.refresh_ports()
+        else:
+            logger.warning("serial_panel ou sa méthode refresh_ports est absente")
+
+    def append_text(self, text: str, msg_type: str = 'system') -> None:
+        """
+        Affiche du texte dans le terminal avec un style/couleur selon le type de message et le thème courant.
+        Args:
+            text (str): Texte à afficher.
+            msg_type (str): Type de message ('system', 'error', 'received', etc.).
+        """
+        if not hasattr(self, 'terminal_output') or self.terminal_output is None:
+            logger.warning("terminal_output absent lors de l'affichage du texte")
+            return
+        from PyQt5.QtGui import QTextCursor
+        # Utiliser uniquement insertPlainText pour que la couleur soit gérée par la palette globale
+        # et le setStyleSheet appliqué dans ThemeManager
+        try:
+            cursor = self.terminal_output.textCursor()
+            cursor.movePosition(QTextCursor.End)
+            cursor.insertText(text)
+            self.terminal_output.setTextCursor(cursor)
+            self.terminal_output.ensureCursorVisible()
+        except Exception as e:
+            logger.error(f"Erreur lors de l'affichage du texte dans le terminal: {e}")
+
+__all__ = ["Terminal", "SendWorker"]
